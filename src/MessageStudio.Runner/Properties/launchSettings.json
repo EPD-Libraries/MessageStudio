@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MessageStudio.Runner": {
+      "commandName": "Project",
+      "commandLineArgs": "\"D:\\bin\\Msbt\\Randomizer.msbt\""
+    }
+  }
+}
