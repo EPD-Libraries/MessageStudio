@@ -11,12 +11,14 @@ public class MsbtParserBenchmarks
 {
     private byte[] _bufferLe = [];
     private byte[] _bufferBe = [];
+    private byte[] _bufferBeLarge = [];
 
     [GlobalSetup]
     public void Setup()
     {
         _bufferLe = File.ReadAllBytes("D:\\bin\\Msbt\\100enemy-LE.msbt");
         _bufferBe = File.ReadAllBytes("D:\\bin\\Msbt\\100enemy.msbt");
+        _bufferBeLarge = File.ReadAllBytes("D:\\bin\\Msbt\\ArmorHead.msbt");
     }
 
     [Benchmark]
@@ -58,6 +60,25 @@ public class MsbtParserBenchmarks
     }
 
     [Benchmark]
+    public void ParseBELarge()
+    {
+        Parser parser = new(_bufferBeLarge);
+        MsbtReader reader = new(ref parser);
+        foreach (MsbtLabelSection.MsbtLabel label in reader.LabelSection) {
+            _ = label.Index;
+            _ = label.Value;
+        }
+        foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
+            _ = atr.Index;
+            _ = atr.Value;
+        }
+        foreach (MsbtTextSection.MsbtText txt in reader.TextSection) {
+            _ = txt.Index;
+            _ = txt.Value;
+        }
+    }
+
+    [Benchmark]
     public void ParseLE_MsbtLib()
     {
         MSBT msbt = new(_bufferLe);
@@ -68,6 +89,13 @@ public class MsbtParserBenchmarks
     public void ParseBE_MsbtLib()
     {
         MSBT msbt = new(_bufferBe);
+        foreach ((var _, var _) in msbt.GetTexts()) { }
+    }
+
+    [Benchmark]
+    public void ParseBELarge_MsbtLib()
+    {
+        MSBT msbt = new(_bufferBeLarge);
         foreach ((var _, var _) in msbt.GetTexts()) { }
     }
 }
