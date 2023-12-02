@@ -1,10 +1,11 @@
-﻿using MessageStudio.Core.Common;
+﻿#if RELEASE
+BenchmarkDotNet.Running.BenchmarkRunner.Run<MessageStudio.Runner.Benchmarks.MsbtParserBenchmarks>();
+#else
+
+using MessageStudio.Core.Common;
 using MessageStudio.Core.Formats.BinaryText;
 using MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 using System.Text;
-
-// BenchmarkDotNet.Running.BenchmarkRunner.Run<MessageStudio.Runner.Benchmarks.MsbtParserBenchmarks>();
-// return;
 
 byte[] buffer = File.ReadAllBytes(args[0]);
 Parser parser = new(buffer);
@@ -26,3 +27,10 @@ Console.WriteLine("\nAttributes:");
 foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
     Console.WriteLine($"{atr.Index}: {atr.Value}");
 }
+
+Console.WriteLine("\nText:");
+foreach (MsbtTextSection.MsbtText txt in reader.TextSection) {
+    Console.WriteLine($"{txt.Index}: {txt.Value}");
+}
+
+#endif
