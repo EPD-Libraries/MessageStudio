@@ -34,6 +34,12 @@ public ref struct Parser(Span<byte> buffer, Endian endian = Endian.Big)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Align(int size)
+    {
+        _position += (size - _position % size) % size;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Read<T>(int offset = -1) where T : unmanaged
     {
         int rOffset = ResolveOffset(offset);
