@@ -1,6 +1,6 @@
 ﻿using MessageStudio.Core.Common;
 
-namespace MessageStudio.Core.Formats.Msbt.Structures.Sections;
+namespace MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 
 public ref struct MsbtTextSection
 {

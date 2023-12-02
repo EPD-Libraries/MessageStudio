@@ -1,6 +1,6 @@
 ﻿using MessageStudio.Core.Common;
 
-namespace MessageStudio.Core.Formats.Msbt.Structures;
+namespace MessageStudio.Core.Formats.BinaryText.Structures;
 
 public enum Encoding : byte
 {

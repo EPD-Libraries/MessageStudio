@@ -1,10 +1,10 @@
 ﻿using MessageStudio.Core.Common;
-using MessageStudio.Core.Formats.Msbt.Structures.Common;
+using MessageStudio.Core.Formats.BinaryText.Structures.Common;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace MessageStudio.Core.Formats.Msbt.Structures.Sections;
+namespace MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 
 public readonly ref struct MsbtLabelSection
 {

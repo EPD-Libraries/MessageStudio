@@ -1,9 +1,9 @@
 ﻿using MessageStudio.Core.Common;
-using MessageStudio.Core.Formats.Msbt.Structures;
-using MessageStudio.Core.Formats.Msbt.Structures.Sections;
+using MessageStudio.Core.Formats.BinaryText.Structures;
+using MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 using System.Runtime.CompilerServices;
 
-namespace MessageStudio.Core.Formats.Msbt;
+namespace MessageStudio.Core.Formats.BinaryText;
 
 public ref struct MsbtReader
 {
