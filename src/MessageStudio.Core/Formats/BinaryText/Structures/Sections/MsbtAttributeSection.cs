@@ -24,12 +24,17 @@ public readonly ref struct MsbtAttributeSection
 
         Count = parser.Read<int>();
         _attributeSize = parser.Read<int>();
+        _tableBuffer = parser.ReadSpan(header.Size, tableOffset);
 
-        if (_attributeSize != 4) {
-            throw new NotSupportedException("Only UINT32 attribute offsets are supported");
+        if (_attributeSize == 0) {
+            goto Cleanup;
         }
 
-        _tableBuffer = parser.ReadSpan(header.Size, tableOffset);
+        if (_attributeSize != 4) {
+            throw new NotSupportedException("Only uint32 and nullptr attribute offsets are supported");
+        }
+
+        Cleanup:
         parser.Align(0x10);
     }
 
@@ -77,6 +82,10 @@ public readonly ref struct MsbtAttributeSection
         public readonly unsafe MsbtAttribute Current {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get {
+                if (_section._attributeSize == 0) {
+                    return new(_index, (ushort*)0);
+                }
+
                 int offset = (_parser.Read<int>(_offsetsOffset + (_section._attributeSize * _index)) - _stringsOffset) / 2;
                 fixed (ushort* ptr = _strings[offset..]) {
                     return new(_index, ptr);
