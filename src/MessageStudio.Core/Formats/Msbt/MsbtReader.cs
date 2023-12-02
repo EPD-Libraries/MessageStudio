@@ -15,8 +15,10 @@ public ref struct MsbtReader
 
     public MsbtReader(ref Parser parser)
     {
-        Header = new MsbtHeader(ref parser);
-        parser.Endian = Header.ByteOrderMark;
+        if ((parser.Endian = (Header = new MsbtHeader(ref parser)).ByteOrderMark) is Endian.Little) {
+            parser.Seek(0);
+            Header = new MsbtHeader(ref parser);
+        }
 
         for (int i = 0; i < Header.SectionCount; i++) {
             if (parser.CheckForMagic("LBL1"u8)) {
