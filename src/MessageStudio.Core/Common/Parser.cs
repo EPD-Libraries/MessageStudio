@@ -76,7 +76,7 @@ public ref struct Parser(Span<byte> buffer, Endian endian = Endian.Big)
     {
         int rOffset = ResolveOffset(offset);
 
-        if (rOffset + length < _buffer.Length) {
+        if (rOffset + length <= _buffer.Length) {
             _position = rOffset + length;
             return _buffer[rOffset..(rOffset + length)];
         }
