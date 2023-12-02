@@ -43,7 +43,7 @@ public readonly ref struct MsbtAttributeSection
         public string Value {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Utf16StringMarshaller.ConvertToManaged(_valuePtr)
-                ?? string.Empty;
+                ?? "";
         }
     }
 
@@ -64,19 +64,15 @@ public readonly ref struct MsbtAttributeSection
             _parser = new(section._attributeBuffer, section._endianness);
             _offsetsOffset = sizeof(uint) + sizeof(uint);
             _stringsOffset = _offsetsOffset + section.Count * section._attributeSize;
+            _strings = MemoryMarshal.Cast<byte, ushort>(section._attributeBuffer[_stringsOffset..section._attributeBuffer.Length]);
 
             if (_parser.IsNotSystemByteOrder()) {
-                int blockSize = section._attributeBuffer.Length - _stringsOffset;
-                int utf16Length = blockSize / 2;
-                int currentOffset = _stringsOffset;
-                for (int i = 0; i < utf16Length; i++) {
-                    section._attributeBuffer[currentOffset..(currentOffset += 2)].Reverse();
+                for (int i = 0; i < _strings.Length; i++) {
+                    _strings[i] = BinaryPrimitives.ReverseEndianness(_strings[i]);
                 }
             }
 
-            _strings = MemoryMarshal.Cast<byte, ushort>(section._attributeBuffer[_stringsOffset..section._attributeBuffer.Length]);
             _section = section;
-            _parser.Seek(_offsetsOffset);
         }
 
         public readonly unsafe MsbtAttribute Current {
