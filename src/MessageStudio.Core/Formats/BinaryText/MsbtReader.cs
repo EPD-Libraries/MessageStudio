@@ -21,13 +21,14 @@ public ref struct MsbtReader
         }
 
         for (int i = 0; i < Header.SectionCount; i++) {
-            if (parser.CheckForMagic("LBL1"u8)) {
+            Span<byte> magic = parser.ReadSpan(4);
+            if (magic.SequenceEqual("LBL1"u8)) {
                 LabelSection = new(ref parser);
             }
-            else if (parser.CheckForMagic("ATR1"u8)) {
+            else if (magic.SequenceEqual("ATR1"u8)) {
                 AttributeSection = new(ref parser);
             }
-            else if (parser.CheckForMagic("TXT2"u8)) {
+            else if (magic.SequenceEqual("TXT2"u8)) {
                 TextSection = new(ref parser);
             }
         }

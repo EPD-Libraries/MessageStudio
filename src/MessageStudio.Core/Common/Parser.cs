@@ -119,10 +119,6 @@ public ref struct Parser(Span<byte> buffer, Endian endian = Endian.Big)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool CheckForMagic(in ReadOnlySpan<byte> magic, int offset = -1)
-        => ReadSpan(magic.Length, offset).SequenceEqual(magic);
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static InvalidOperationException EoF()
         => new("The requested buffer is larger than the source buffer");
 
