@@ -1,6 +1,6 @@
 ﻿using MessageStudio.Core.Common;
-using MessageStudio.Core.Formats.Msbt;
-using MessageStudio.Core.Formats.Msbt.Structures.Sections;
+using MessageStudio.Core.Formats.BinaryText;
+using MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 using System.Text;
 
 // BenchmarkDotNet.Running.BenchmarkRunner.Run<MessageStudio.Runner.Benchmarks.MsbtParserBenchmarks>();
@@ -19,4 +19,8 @@ Console.WriteLine($"File Size: {reader.Header.FileSize}");
 
 foreach (MsbtLabelSection.MsbtLabel label in reader.LabelSection) {
     Console.WriteLine($"{label.Index}: {label.Value}");
+}
+
+foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
+    Console.WriteLine($"{atr.Index}: {atr.Value}");
 }

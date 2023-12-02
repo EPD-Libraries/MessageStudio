@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using MessageStudio.Core.Common;
-using MessageStudio.Core.Formats.Msbt;
-using MessageStudio.Core.Formats.Msbt.Structures.Sections;
+using MessageStudio.Core.Formats.BinaryText;
+using MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 
 namespace MessageStudio.Runner.Benchmarks;
 
@@ -24,8 +24,10 @@ public class MsbtParserBenchmarks
         Parser parser = new(_bufferLe);
         MsbtReader reader = new(ref parser);
         foreach (MsbtLabelSection.MsbtLabel label in reader.LabelSection) {
-            int index = label.Index;
-            string value = label.Value;
+            _ = label.Index;
+        }
+        foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
+            _ = atr.Index;
         }
     }
 
@@ -35,8 +37,10 @@ public class MsbtParserBenchmarks
         Parser parser = new(_bufferBe);
         MsbtReader reader = new(ref parser);
         foreach (MsbtLabelSection.MsbtLabel label in reader.LabelSection) {
-            int index = label.Index;
-            string value = label.Value;
+            _ = label.Index;
+        }
+        foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
+            _ = atr.Index;
         }
     }
 }
