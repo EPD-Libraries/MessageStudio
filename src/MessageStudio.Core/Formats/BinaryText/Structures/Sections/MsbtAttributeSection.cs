@@ -1,7 +1,6 @@
 ﻿using MessageStudio.Core.Common;
 using MessageStudio.Core.Formats.BinaryText.Structures.Common;
 using System.Buffers.Binary;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
