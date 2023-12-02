@@ -9,7 +9,6 @@ namespace MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 public readonly ref struct MsbtLabelSection
 {
     private readonly Endian _endianness;
-    private readonly int _sectionOffset;
     private readonly Span<MsbtGroup> _groups;
     private readonly Span<byte> _labelBuffer;
 
@@ -18,13 +17,13 @@ public readonly ref struct MsbtLabelSection
         _endianness = parser.Endian;
 
         SectionHeader header = parser.ReadStruct<SectionHeader>();
-        _sectionOffset = parser.Position;
+        int sectionOffset = parser.Position;
 
         int groupCount = parser.Read<int>();
         _groups = parser.ReadSpan<MsbtGroup>(groupCount);
-        _labelBuffer = parser.ReadSpan(header.Size, _sectionOffset);
+        _labelBuffer = parser.ReadSpan(header.Size, sectionOffset);
 
-        parser.Seek(_sectionOffset + header.Size);
+        parser.Seek(sectionOffset + header.Size);
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 8)]
