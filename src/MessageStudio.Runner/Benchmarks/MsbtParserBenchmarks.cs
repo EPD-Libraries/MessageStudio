@@ -2,6 +2,7 @@
 using MessageStudio.Core.Common;
 using MessageStudio.Core.Formats.BinaryText;
 using MessageStudio.Core.Formats.BinaryText.Structures.Sections;
+using MsbtLib;
 
 namespace MessageStudio.Runner.Benchmarks;
 
@@ -25,9 +26,15 @@ public class MsbtParserBenchmarks
         MsbtReader reader = new(ref parser);
         foreach (MsbtLabelSection.MsbtLabel label in reader.LabelSection) {
             _ = label.Index;
+            _ = label.Value;
         }
         foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
             _ = atr.Index;
+            _ = atr.Value;
+        }
+        foreach (MsbtTextSection.MsbtText txt in reader.TextSection) {
+            _ = txt.Index;
+            _ = txt.Value;
         }
     }
 
@@ -38,9 +45,29 @@ public class MsbtParserBenchmarks
         MsbtReader reader = new(ref parser);
         foreach (MsbtLabelSection.MsbtLabel label in reader.LabelSection) {
             _ = label.Index;
+            _ = label.Value;
         }
         foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
             _ = atr.Index;
+            _ = atr.Value;
         }
+        foreach (MsbtTextSection.MsbtText txt in reader.TextSection) {
+            _ = txt.Index;
+            _ = txt.Value;
+        }
+    }
+
+    [Benchmark]
+    public void ParseLE_MsbtLib()
+    {
+        MSBT msbt = new(_bufferLe);
+        foreach ((var _, var _) in msbt.GetTexts()) { }
+    }
+
+    [Benchmark]
+    public void ParseBE_MsbtLib()
+    {
+        MSBT msbt = new(_bufferBe);
+        foreach ((var _, var _) in msbt.GetTexts()) { }
     }
 }
