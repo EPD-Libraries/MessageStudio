@@ -11,7 +11,7 @@ public readonly ref struct MsbtAttributeSection
 {
     private readonly Endian _endianness;
     private readonly int _attributeSize;
-    private readonly Span<byte> _attributeBuffer;
+    private readonly Span<byte> _tableBuffer;
 
     public readonly int Count;
 
@@ -29,7 +29,7 @@ public readonly ref struct MsbtAttributeSection
             throw new NotSupportedException("Only UINT32 attribute offsets are supported");
         }
 
-        _attributeBuffer = parser.ReadSpan(header.Size, tableOffset);
+        _tableBuffer = parser.ReadSpan(header.Size, tableOffset);
         parser.Align(0x10);
     }
 
@@ -60,10 +60,10 @@ public readonly ref struct MsbtAttributeSection
 
         public Enumerator(MsbtAttributeSection section)
         {
-            _parser = new(section._attributeBuffer, section._endianness);
+            _parser = new(section._tableBuffer, section._endianness);
             _offsetsOffset = sizeof(uint) + sizeof(uint);
             _stringsOffset = _offsetsOffset + section.Count * section._attributeSize;
-            _strings = MemoryMarshal.Cast<byte, ushort>(section._attributeBuffer[_stringsOffset..section._attributeBuffer.Length]);
+            _strings = MemoryMarshal.Cast<byte, ushort>(section._tableBuffer[_stringsOffset..section._tableBuffer.Length]);
 
             if (_parser.IsNotSystemByteOrder()) {
                 for (int i = 0; i < _strings.Length; i++) {
