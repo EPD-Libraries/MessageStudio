@@ -8,13 +8,16 @@ namespace MessageStudio.Core.Formats.Msbt.Structures.Sections;
 
 public readonly ref struct MsbtLabelSection
 {
+    private readonly Endian _endianness;
     private readonly int _sectionOffset;
-    private readonly ReadOnlySpan<MsbtGroup> _groups;
-    private readonly ReadOnlySpan<byte> _labelBuffer;
+    private readonly Span<MsbtGroup> _groups;
+    private readonly Span<byte> _labelBuffer;
 
     public MsbtLabelSection(ref Parser parser)
     {
-        SectionHeader header = parser.Read<SectionHeader>();
+        _endianness = parser.Endian;
+
+        SectionHeader header = parser.ReadStruct<SectionHeader>();
         _sectionOffset = parser.Position;
 
         int groupCount = parser.Read<int>();
@@ -25,10 +28,16 @@ public readonly ref struct MsbtLabelSection
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 8)]
-    public readonly struct MsbtGroup
+    private readonly struct MsbtGroup : IReversable
     {
         public readonly int Count;
         public readonly int GroupOffset;
+
+        public static void Reverse(in Span<byte> buffer)
+        {
+            buffer[0..4].Reverse();
+            buffer[4..8].Reverse();
+        }
     }
 
     public readonly unsafe struct MsbtLabel
@@ -43,9 +52,9 @@ public readonly ref struct MsbtLabelSection
             get => Utf8StringMarshaller.ConvertToManaged(_valuePtr)![.._valueLength];
         }
 
-        public MsbtLabel(ReadOnlySpan<byte> buffer)
+        public MsbtLabel(Span<byte> buffer, Endian endian)
         {
-            Parser parser = new(buffer);
+            Parser parser = new(buffer, endian);
             _valueLength = buffer.Length - 4;
             fixed (byte* ptr = buffer[.._valueLength]) {
                 _valuePtr = ptr;
@@ -72,7 +81,7 @@ public readonly ref struct MsbtLabelSection
                 int offset = _section._groups[_groupIndex].GroupOffset + _labelOffset;
                 byte valueLength = _section._labelBuffer[offset++];
                 _labelOffset += valueLength + sizeof(int) + sizeof(byte);
-                return new(_section._labelBuffer[offset..(offset + valueLength + sizeof(int))]);
+                return new(_section._labelBuffer[offset..(offset + valueLength + sizeof(int))], _section._endianness);
             }
         }
 
