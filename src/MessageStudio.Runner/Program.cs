@@ -17,10 +17,12 @@ Console.WriteLine($"Version: {reader.Header.Version}");
 Console.WriteLine($"Section Count: {reader.Header.SectionCount}");
 Console.WriteLine($"File Size: {reader.Header.FileSize}");
 
+Console.WriteLine("\nLabels:");
 foreach (MsbtLabelSection.MsbtLabel label in reader.LabelSection) {
     Console.WriteLine($"{label.Index}: {label.Value}");
 }
 
+Console.WriteLine("\nAttributes:");
 foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
     Console.WriteLine($"{atr.Index}: {atr.Value}");
 }
