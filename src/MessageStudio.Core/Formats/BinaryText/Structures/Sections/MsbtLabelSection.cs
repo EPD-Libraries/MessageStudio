@@ -23,7 +23,7 @@ public readonly ref struct MsbtLabelSection
         _groups = parser.ReadSpan<MsbtGroup>(groupCount);
         _labelBuffer = parser.ReadSpan(header.Size, sectionOffset);
 
-        parser.Seek(sectionOffset + header.Size);
+        parser.Align(0x10);
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 8)]
