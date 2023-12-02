@@ -35,8 +35,8 @@ public ref struct MsbtReader
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly MsbtWriter GetWriter() => new(this);
+    public readonly Msbt GetWriter() => new(this);
 
-    public static explicit operator MsbtWriter(MsbtReader parser)
+    public static explicit operator Msbt(MsbtReader parser)
         => parser.GetWriter();
 }
