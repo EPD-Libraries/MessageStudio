@@ -8,7 +8,7 @@ public readonly partial struct SectionHeader : IReversable
 {
     public const int LayoutSize = 12;
 
-    public readonly int Size;
+    public readonly int SectionSize;
 
     public static void Reverse(in Span<byte> buffer)
     {
