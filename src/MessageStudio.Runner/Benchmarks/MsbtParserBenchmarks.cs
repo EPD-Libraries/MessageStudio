@@ -24,17 +24,17 @@ public class MsbtParserBenchmarks
     [Benchmark]
     public void ParseLE()
     {
-        Parser parser = new(_bufferLe);
-        MsbtReader reader = new(ref parser);
-        foreach (MsbtLabelSection.MsbtLabel label in reader.LabelSection) {
+        MemoryReader reader = new(_bufferLe);
+        ReadOnlyMsbt msbt = new(reader);
+        foreach (MsbtLabel label in msbt.LabelSection) {
             _ = label.Index;
             _ = label.Value;
         }
-        foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
+        foreach (MsbtAttribute atr in msbt.AttributeSection!) {
             _ = atr.Index;
             _ = atr.Value;
         }
-        foreach (MsbtTextSection.MsbtText txt in reader.TextSection) {
+        foreach (MsbtText txt in msbt.TextSection) {
             _ = txt.Index;
             _ = txt.Value;
         }
@@ -43,55 +43,55 @@ public class MsbtParserBenchmarks
     [Benchmark]
     public void ParseBE()
     {
-        Parser parser = new(_bufferBe);
-        MsbtReader reader = new(ref parser);
-        foreach (MsbtLabelSection.MsbtLabel label in reader.LabelSection) {
+        MemoryReader reader = new(_bufferBe);
+        ReadOnlyMsbt msbt = new(reader);
+        foreach (MsbtLabel label in msbt.LabelSection) {
             _ = label.Index;
             _ = label.Value;
         }
-        foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
+        foreach (MsbtAttribute atr in msbt.AttributeSection!) {
             _ = atr.Index;
             _ = atr.Value;
         }
-        foreach (MsbtTextSection.MsbtText txt in reader.TextSection) {
+        foreach (MsbtText txt in msbt.TextSection) {
             _ = txt.Index;
             _ = txt.Value;
         }
     }
-
+    
     [Benchmark]
     public void ParseBELarge()
     {
-        Parser parser = new(_bufferBeLarge);
-        MsbtReader reader = new(ref parser);
-        foreach (MsbtLabelSection.MsbtLabel label in reader.LabelSection) {
+        MemoryReader reader = new(_bufferBeLarge);
+        ReadOnlyMsbt msbt = new(reader);
+        foreach (MsbtLabel label in msbt.LabelSection) {
             _ = label.Index;
             _ = label.Value;
         }
-        foreach (MsbtAttributeSection.MsbtAttribute atr in reader.AttributeSection) {
+        foreach (MsbtAttribute atr in msbt.AttributeSection!) {
             _ = atr.Index;
             _ = atr.Value;
         }
-        foreach (MsbtTextSection.MsbtText txt in reader.TextSection) {
+        foreach (MsbtText txt in msbt.TextSection) {
             _ = txt.Index;
             _ = txt.Value;
         }
     }
-
+    
     [Benchmark]
     public void ParseLE_MsbtLib()
     {
         MSBT msbt = new(_bufferLe);
         foreach ((var _, var _) in msbt.GetTexts()) { }
     }
-
+    
     [Benchmark]
     public void ParseBE_MsbtLib()
     {
         MSBT msbt = new(_bufferBe);
         foreach ((var _, var _) in msbt.GetTexts()) { }
     }
-
+    
     [Benchmark]
     public void ParseBELarge_MsbtLib()
     {
