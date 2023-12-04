@@ -5,32 +5,40 @@ using System.Runtime.CompilerServices;
 
 namespace MessageStudio.Core.Formats.BinaryText;
 
-public ref struct MsbtReader
+public struct MsbtReader
 {
     public MsbtHeader Header;
 
-    public MsbtAttributeSection AttributeSection;
-    public MsbtLabelSection LabelSection;
-    public MsbtTextSection TextSection;
+    public MsbtAttributeSection? AttributeSection { get; }
+    public MsbtLabelSection LabelSection { get; }
+    public MsbtTextSection TextSection { get; }
 
-    public MsbtReader(ref Parser parser)
+    public MsbtReader(MemoryReader reader)
     {
-        if ((parser.Endian = (Header = new MsbtHeader(ref parser)).ByteOrderMark) is Endian.Little) {
-            parser.Seek(0);
-            Header = new MsbtHeader(ref parser);
+        if ((reader.Endianness = (Header = new MsbtHeader(reader)).ByteOrderMark) is Endian.Little) {
+            reader.Seek(0);
+            Header = new MsbtHeader(reader);
         }
-
+        
         for (int i = 0; i < Header.SectionCount; i++) {
-            Span<byte> magic = parser.ReadSpan(4);
+            Span<byte> magic = reader.ReadSpan(4);
             if (magic.SequenceEqual("LBL1"u8)) {
-                LabelSection = new(ref parser);
+                LabelSection = new(reader);
             }
-            else if (magic.SequenceEqual("ATR1"u8)) {
-                AttributeSection = new(ref parser);
+            if (magic.SequenceEqual("ATR1"u8)) {
+                AttributeSection = new(reader);
             }
             else if (magic.SequenceEqual("TXT2"u8)) {
-                TextSection = new(ref parser);
+                TextSection = new(reader, Header.Encoding);
             }
+        }
+        
+        if (LabelSection is null) {
+            throw new InvalidDataException("No LabelSection found in MSBT!");
+        }
+        
+        if (TextSection is null) {
+            throw new InvalidDataException("No TextSection found in MSBT!");
         }
     }
 
