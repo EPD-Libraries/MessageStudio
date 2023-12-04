@@ -8,27 +8,32 @@ public enum Encoding : byte
     Unicode = 1,
 }
 
-public ref struct MsbtHeader
+public struct MsbtHeader
 {
-    public ReadOnlySpan<byte> Magic = "MsgStdBn"u8;
+    public const string Magic = "MsgStdBn";
+
     public Endian ByteOrderMark = Endian.Big;
     public Encoding Encoding = Encoding.Unicode;
     public byte Version = 1;
     public ushort SectionCount;
     public uint FileSize;
 
-    public unsafe MsbtHeader(ref Parser parser)
+    public MsbtHeader(MemoryReader reader)
     {
-        Magic = parser.ReadSpan(8);
-        ByteOrderMark = parser.Read<Endian>();
-        parser.Move(2);
+        Span<byte> magic = reader.ReadSpan(8);
+        if (!magic.SequenceEqual("MsgStdBn"u8)) {
+            throw new InvalidDataException("Invalid MSBT magic");
+        }
 
-        Encoding = parser.Read<Encoding>();
-        Version = parser.Read<byte>();
-        SectionCount = parser.Read<ushort>();
-        parser.Move(2);
+        ByteOrderMark = reader.Read<Endian>();
+        reader.Move(2);
 
-        FileSize = parser.Read<uint>();
-        parser.Move(0xA);
+        Encoding = reader.Read<Encoding>();
+        Version = reader.Read<byte>();
+        SectionCount = reader.Read<ushort>();
+        reader.Move(2);
+
+        FileSize = reader.Read<uint>();
+        reader.Move(0xA);
     }
 }
