@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MessageStudio.Core.Formats.BinaryText;
 
-public struct MsbtReader
+public struct ReadOnlyMsbt
 {
     public MsbtHeader Header;
 
@@ -14,7 +14,7 @@ public struct MsbtReader
     public MsbtLabelSection LabelSection { get; }
     public MsbtTextSection TextSection { get; }
 
-    public MsbtReader(MemoryReader reader)
+    public ReadOnlyMsbt(MemoryReader reader)
     {
         if ((reader.Endianness = (Header = new MsbtHeader(reader)).ByteOrderMark) is Endian.Little) {
             reader.Seek(0);
@@ -46,7 +46,7 @@ public struct MsbtReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Msbt GetWriter() => new(this);
 
-    public static explicit operator Msbt(MsbtReader parser)
+    public static explicit operator Msbt(ReadOnlyMsbt parser)
         => parser.GetWriter();
 
     public readonly string ToYaml()

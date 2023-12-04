@@ -15,7 +15,7 @@ public struct Msbt
 
     }
 
-    public Msbt(in MsbtReader reader)
+    public Msbt(in ReadOnlyMsbt reader)
     {
 
     }
