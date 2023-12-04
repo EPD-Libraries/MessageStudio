@@ -6,6 +6,6 @@ public static class MsbtTagManager
 {
     public static IMsbtTag FromBinary(in ushort group, in ushort type, in Span<ushort> data)
     {
-        throw new NotImplementedException();
+        return UnknownTag.FromBinary(group, type, data);
     }
 }
