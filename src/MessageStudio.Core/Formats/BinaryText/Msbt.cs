@@ -8,15 +8,18 @@ public class Msbt : Dictionary<string, MsbtEntry>
     public ReadOnlyMsbt ReadOnly { get; }
 
     public static Msbt FromBinary(in Memory<byte> buffer)
-    {
-        MemoryReader reader = new(buffer);
-        return new(new(reader));
-    }
+        => new(buffer);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string? ToYaml() => ReadOnly.ToYaml();
 
-    public Msbt() { }
+    public Msbt()
+    {
+    }
+
+    public Msbt(in Memory<byte> buffer) : this(new ReadOnlyMsbt(new MemoryReader(buffer)))
+    {
+    }
 
     public Msbt(in ReadOnlyMsbt reader)
     {
