@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using MessageStudio.Core.Common.Extensions;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MessageStudio.Core.Common;
@@ -156,17 +157,8 @@ public unsafe class MemoryReader(Memory<byte> buffer, Endian endianness = Endian
     private int ResolveOffset(in int optionalOffset)
         => optionalOffset < 0 ? _position : optionalOffset;
 
-    /// <inheritdoc cref="IsNotSystemByteOrder(Endian)"/>
+    /// <inheritdoc cref="EndianExtension.IsNotSystemByteOrder(Endian)"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsNotSystemByteOrder()
-        => IsNotSystemByteOrder(_endianness);
-
-    /// <summary>
-    /// </summary>
-    /// <returns>
-    /// <see langword="true"/> if the system <see cref="Endian"/> does not match the provided <paramref name="endianness"/>
-    /// </returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool IsNotSystemByteOrder(Endian endianness)
-        => endianness == Endian.Big && BitConverter.IsLittleEndian || endianness == Endian.Little && !BitConverter.IsLittleEndian;
+        => !_endianness.IsSystemByteOrder();
 }
