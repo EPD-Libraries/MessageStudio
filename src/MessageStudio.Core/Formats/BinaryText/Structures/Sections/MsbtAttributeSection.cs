@@ -23,6 +23,7 @@ public unsafe class MsbtAttributeSection : IEnumerable<MsbtAttribute>
         get => (_cache ??= CacheEntries())[index];
     }
 
+    [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MsbtAttributeSection(MemoryReader reader)
     {
         SectionHeader header = reader.ReadStruct<SectionHeader>();
@@ -86,6 +87,7 @@ public unsafe class MsbtAttributeSection : IEnumerable<MsbtAttribute>
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 
+    [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
     public struct Enumerator(MsbtAttributeSection section) : IEnumerator<MsbtAttribute>
     {
         private readonly MsbtAttributeSection _section = section;

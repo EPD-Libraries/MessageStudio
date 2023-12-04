@@ -66,6 +66,7 @@ public unsafe class MsbtTextSection : IEnumerable<MsbtText>
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 
+    [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
     public struct Enumerator(MsbtTextSection section) : IEnumerator<MsbtText>
     {
         private readonly MsbtTextSection _section = section;

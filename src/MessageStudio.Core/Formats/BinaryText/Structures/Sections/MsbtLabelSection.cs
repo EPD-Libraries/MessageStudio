@@ -13,6 +13,7 @@ public unsafe class MsbtLabelSection : IEnumerable<MsbtLabel>
     private readonly int _groupCount;
     private readonly Memory<byte> _labelBuffer;
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MsbtLabelSection(MemoryReader reader)
     {
         _endianness = reader.Endianness;
@@ -55,6 +56,7 @@ public unsafe class MsbtLabelSection : IEnumerable<MsbtLabel>
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
 
+    [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
     public struct Enumerator(MsbtLabelSection section) : IEnumerator<MsbtLabel>
     {
         private readonly MsbtLabelSection _section = section;
