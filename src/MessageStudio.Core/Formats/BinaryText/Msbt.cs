@@ -2,11 +2,21 @@
 
 namespace MessageStudio.Core.Formats.BinaryText;
 
-public struct Msbt(in MsbtReader reader)
+public struct Msbt
 {
-    public static Msbt FromBinary(in Span<byte> buffer)
+    public static Msbt FromBinary(in Memory<byte> buffer)
     {
-        Parser parser = new(buffer);
-        return new(new(ref parser));
+        MemoryReader reader = new(buffer);
+        return new(new(reader));
+    }
+
+    public Msbt()
+    {
+
+    }
+
+    public Msbt(in MsbtReader reader)
+    {
+
     }
 }
