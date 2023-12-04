@@ -1,4 +1,5 @@
 ﻿using MessageStudio.Core.Common;
+using MessageStudio.Core.Common.Extensions;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -70,7 +71,7 @@ public unsafe class MsbtText(int index, byte* valuePtr, int valueLength, Encodin
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ushort Read(in int index)
         {
-            return MemoryReader.IsNotSystemByteOrder(_endianness)
+            return _endianness.IsNotSystemByteOrder()
                 ? BinaryPrimitives.ReverseEndianness(_buffer[index]) : _buffer[index];
         }
 
@@ -78,7 +79,7 @@ public unsafe class MsbtText(int index, byte* valuePtr, int valueLength, Encodin
         public Span<ushort> ReadSpan(ref int startIndex, in int length)
         {
             int relativeLength = startIndex + length;
-            if (MemoryReader.IsNotSystemByteOrder(_endianness)) {
+            if (_endianness.IsNotSystemByteOrder()) {
                 for (int i = startIndex; i < relativeLength; i++) {
                     _buffer[i] = BinaryPrimitives.ReverseEndianness(_buffer[i]);
                 }
