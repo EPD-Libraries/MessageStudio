@@ -10,5 +10,5 @@ public class MsbtEntry
     /// <summary>
     /// The pseudo-HTML processed text
     /// </summary>
-    public string? Text { get; set; }
+    public required string Text { get; set; }
 }
