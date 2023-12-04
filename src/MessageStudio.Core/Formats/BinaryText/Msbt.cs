@@ -1,4 +1,5 @@
 ﻿using MessageStudio.Core.Common;
+using System.Runtime.CompilerServices;
 
 namespace MessageStudio.Core.Formats.BinaryText;
 
@@ -11,6 +12,9 @@ public class Msbt : Dictionary<string, MsbtEntry>
         MemoryReader reader = new(buffer);
         return new(new(reader));
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string? ToYaml() => ReadOnly.ToYaml();
 
     public Msbt() { }
 
