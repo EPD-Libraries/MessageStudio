@@ -1,99 +1,115 @@
 ﻿using MessageStudio.Core.Common;
 using MessageStudio.Core.Formats.BinaryText.Structures.Common;
+using System;
 using System.Buffers.Binary;
+using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
 
 namespace MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 
-public readonly ref struct MsbtAttributeSection
+public unsafe class MsbtAttributeSection : IEnumerable<MsbtAttribute>
 {
-    private readonly Endian _endianness;
-    private readonly int _attributeSize;
-    private readonly Span<byte> _tableBuffer;
+    private readonly MemoryReader? _reader;
+    private readonly ushort* _strings;
+    private readonly int _firstOffset;
+    private MsbtAttribute[]? _cache;
 
-    public readonly int Count;
+    public int AttributeSize { get; }
+    public int Count { get; }
 
-    public MsbtAttributeSection(ref Parser parser)
+    public unsafe MsbtAttribute this[int index] {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => (_cache ??= CacheEntries())[index];
+    }
+
+    public MsbtAttributeSection(MemoryReader reader)
     {
-        _endianness = parser.Endian;
+        SectionHeader header = reader.ReadStruct<SectionHeader>();
+        int tableOffset = reader.Position;
 
-        SectionHeader header = parser.ReadStruct<SectionHeader>();
-        int tableOffset = parser.Position;
+        Count = reader.Read<int>();
+        AttributeSize = reader.Read<int>();
 
-        Count = parser.Read<int>();
-        _attributeSize = parser.Read<int>();
-        _tableBuffer = parser.ReadSpan(header.Size, tableOffset);
-
-        if (_attributeSize == 0) {
+        if (AttributeSize == 0) {
             goto Cleanup;
         }
 
-        if (_attributeSize != 4) {
+        if (AttributeSize != 4) {
             throw new NotSupportedException("Only uint32 and nullptr attribute offsets are supported");
         }
 
-        Cleanup:
-        parser.Align(0x10);
-    }
+        int offsetBufferSize = Count * AttributeSize;
 
-    public unsafe readonly struct MsbtAttribute(int index, ushort* valuePtr)
-    {
-        private readonly ushort* _valuePtr = valuePtr;
+        Memory<byte> offsetBuffer = reader.Read(offsetBufferSize);
+        _reader = new(offsetBuffer, reader.Endianness);
+        _firstOffset = _reader.Read<int>();
 
-        public readonly int Index = index;
+        Span<ushort> stringsBuffer = MemoryMarshal.Cast<byte, ushort>(reader.ReadSpan(header.SectionSize - (reader.Position - tableOffset)));
 
-        public string Value {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Utf16StringMarshaller.ConvertToManaged(_valuePtr)
-                ?? "";
+        if (_reader.IsNotSystemByteOrder()) {
+            // TODO: This is a rather inefficient way of reversing the endianness
+            for (int i = 0; i < stringsBuffer.Length; i++) {
+                stringsBuffer[i] = BinaryPrimitives.ReverseEndianness(stringsBuffer[i]);
+            }
         }
+
+        fixed (ushort* ptr = stringsBuffer) {
+            _strings = ptr;
+        }
+
+    Cleanup:
+        reader.Align(0x10);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Enumerator GetEnumerator() => new(this);
-
-    public ref struct Enumerator
+    private MsbtAttribute[] CacheEntries()
     {
-        private readonly Parser _parser;
-        private readonly MsbtAttributeSection _section;
-        private readonly Span<ushort> _strings;
-        private readonly int _offsetsOffset;
-        private readonly int _stringsOffset;
-        private int _index = -1;
-
-        public Enumerator(MsbtAttributeSection section)
-        {
-            _parser = new(section._tableBuffer, section._endianness);
-            _offsetsOffset = sizeof(uint) + sizeof(uint);
-            _stringsOffset = _offsetsOffset + section.Count * section._attributeSize;
-            _strings = MemoryMarshal.Cast<byte, ushort>(section._tableBuffer[_stringsOffset..section._tableBuffer.Length]);
-
-            if (_parser.IsNotSystemByteOrder()) {
-                for (int i = 0; i < _strings.Length; i++) {
-                    _strings[i] = BinaryPrimitives.ReverseEndianness(_strings[i]);
-                }
-            }
-
-            _section = section;
+        MsbtAttribute[] result = new MsbtAttribute[Count];
+        if (_reader is null) {
+            return result;
         }
 
-        public readonly unsafe MsbtAttribute Current {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get {
-                if (_section._attributeSize == 0) {
-                    return new(_index, (ushort*)0);
-                }
+        for (int i = 0; i < Count; i++) {
+            int offset = _reader.Read<int>(AttributeSize * i) - _firstOffset;
+            result[i] = new(i, _strings + (offset / 2));
+        }
 
-                int offset = (_parser.Read<int>(_offsetsOffset + (_section._attributeSize * _index)) - _stringsOffset) / 2;
-                fixed (ushort* ptr = _strings[offset..]) {
-                    return new(_index, ptr);
-                }
-            }
+        return result;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerator<MsbtAttribute> GetEnumerator()
+        => new Enumerator(this);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    IEnumerator IEnumerable.GetEnumerator()
+        => GetEnumerator();
+
+    public struct Enumerator(MsbtAttributeSection section) : IEnumerator<MsbtAttribute>
+    {
+        private readonly MsbtAttributeSection _section = section;
+        private int _index = -1;
+
+        readonly object IEnumerator.Current {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Current;
+        }
+
+        public readonly MsbtAttribute Current {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _section[_index];
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool MoveNext() => ++_index < _section.Count;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void Reset()
+        {
+            _index = -1;
+        }
+
+        public readonly void Dispose() { }
     }
 }
