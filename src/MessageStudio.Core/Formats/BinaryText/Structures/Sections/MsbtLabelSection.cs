@@ -1,29 +1,37 @@
 ﻿using MessageStudio.Core.Common;
 using MessageStudio.Core.Formats.BinaryText.Structures.Common;
+using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
 
 namespace MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 
-public readonly ref struct MsbtLabelSection
+public unsafe class MsbtLabelSection : IEnumerable<MsbtLabel>
 {
     private readonly Endian _endianness;
-    private readonly Span<MsbtGroup> _groups;
-    private readonly Span<byte> _labelBuffer;
+    private readonly MsbtGroup* _groups;
+    private readonly int _groupCount;
+    private readonly Memory<byte> _labelBuffer;
 
-    public MsbtLabelSection(ref Parser parser)
+    public MsbtLabelSection(MemoryReader reader)
     {
-        _endianness = parser.Endian;
+        _endianness = reader.Endianness;
+        
+        SectionHeader header = reader.ReadStruct<SectionHeader>();
+        int sectionOffset = reader.Position;
+        
+        int groupCount = reader.Read<int>();
+        Span<MsbtGroup> groups = reader.ReadSpan<MsbtGroup>(groupCount);
 
-        SectionHeader header = parser.ReadStruct<SectionHeader>();
-        int sectionOffset = parser.Position;
-
-        int groupCount = parser.Read<int>();
-        _groups = parser.ReadSpan<MsbtGroup>(groupCount);
-        _labelBuffer = parser.ReadSpan(header.Size, sectionOffset);
-
-        parser.Align(0x10);
+        // TODO: Unnecessary allocation?
+        _labelBuffer = reader.Read(header.SectionSize, sectionOffset);
+        
+        _groupCount = groups.Length;
+        fixed (MsbtGroup* ptr = groups) {
+            _groups = ptr;
+        }
+        
+        reader.Align(0x10);
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4, Size = 8)]
@@ -39,46 +47,31 @@ public readonly ref struct MsbtLabelSection
         }
     }
 
-    public readonly unsafe struct MsbtLabel
-    {
-        private readonly int _valueLength;
-        private readonly byte* _valuePtr;
-
-        public readonly int Index;
-
-        public string Value {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Utf8StringMarshaller.ConvertToManaged(_valuePtr)![.._valueLength];
-        }
-
-        public MsbtLabel(Span<byte> buffer, Endian endian)
-        {
-            Parser parser = new(buffer, endian);
-            _valueLength = buffer.Length - 4;
-            fixed (byte* ptr = buffer[.._valueLength]) {
-                _valuePtr = ptr;
-            }
-
-            parser.Move(_valueLength);
-            Index = parser.Read<int>();
-        }
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public IEnumerator<MsbtLabel> GetEnumerator()
+        => new Enumerator(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Enumerator GetEnumerator() => new(this);
+    IEnumerator IEnumerable.GetEnumerator()
+        => GetEnumerator();
 
-    public ref struct Enumerator(MsbtLabelSection section)
+    public struct Enumerator(MsbtLabelSection section) : IEnumerator<MsbtLabel>
     {
         private readonly MsbtLabelSection _section = section;
         private int _groupIndex = 0;
         private int _labelIndex = 0;
         private int _labelOffset = 0;
 
+        object IEnumerator.Current {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Current;
+        }
+
         public MsbtLabel Current {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get {
                 int offset = _section._groups[_groupIndex].GroupOffset + _labelOffset;
-                byte valueLength = _section._labelBuffer[offset++];
+                byte valueLength = _section._labelBuffer.Span[offset++];
                 _labelOffset += valueLength + sizeof(int) + sizeof(byte);
                 return new(_section._labelBuffer[offset..(offset + valueLength + sizeof(int))], _section._endianness);
             }
@@ -93,7 +86,7 @@ public readonly ref struct MsbtLabelSection
                 return true;
             }
 
-            if (++_groupIndex >= _section._groups.Length) {
+            if (++_groupIndex >= _section._groupCount) {
                 return false;
             }
 
@@ -101,5 +94,12 @@ public readonly ref struct MsbtLabelSection
             _labelOffset = 0;
             goto MoveNext;
         }
+
+        public void Reset()
+        {
+            _labelIndex = _groupIndex = _labelOffset = 0;
+        }
+
+        public readonly void Dispose() { }
     }
 }
