@@ -46,6 +46,7 @@ public struct ReadOnlyMsbt
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public readonly Msbt GetWriter() => new(this);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Msbt(ReadOnlyMsbt parser)
         => parser.GetWriter();
 
