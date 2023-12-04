@@ -9,16 +9,27 @@ public enum Endian : ushort
     Little = 0xFFFE,
 }
 
-public ref struct Parser(Span<byte> buffer, Endian endian = Endian.Big)
+public unsafe class MemoryReader(Memory<byte> buffer, Endian endianness = Endian.Big)
 {
-    private readonly Span<byte> _buffer = buffer;
+    private readonly Memory<byte> _buffer = buffer;
+
     private int _position = 0;
-
-    public Endian Endian = endian;
-
-    public readonly int Position {
+    public int Position {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => _position;
+    }
+
+    public int Length {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _buffer.Length;
+    }
+
+    private Endian _endianness = endianness;
+    public Endian Endianness {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _endianness;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set => _endianness = value;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -40,10 +51,23 @@ public ref struct Parser(Span<byte> buffer, Endian endian = Endian.Big)
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Memory<byte> Read(int length, int offset = -1)
+    {
+        int rOffset = ResolveOffset(offset);
+
+        if (rOffset + length <= _buffer.Length) {
+            _position = rOffset + length;
+            return _buffer[rOffset..(rOffset + length)];
+        }
+
+        throw EoF();
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public T Read<T>(int offset = -1) where T : unmanaged
     {
         int rOffset = ResolveOffset(offset);
-        Span<byte> buffer = _buffer[rOffset..(_position = rOffset + Unsafe.SizeOf<T>())];
+        Span<byte> buffer = _buffer[rOffset..(_position = rOffset + Unsafe.SizeOf<T>())].Span;
 
         if (buffer.Length > 1 && IsNotSystemByteOrder()) {
             buffer.Reverse();
@@ -59,7 +83,7 @@ public ref struct Parser(Span<byte> buffer, Endian endian = Endian.Big)
     public unsafe T ReadStruct<T>(int offset = -1) where T : struct, IReversable
     {
         int rOffset = ResolveOffset(offset);
-        Span<byte> buffer = _buffer[rOffset..(_position = rOffset + sizeof(T))];
+        Span<byte> buffer = _buffer[rOffset..(_position = rOffset + sizeof(T))].Span;
 
         if (buffer.Length > 1 && IsNotSystemByteOrder()) {
             T.Reverse(buffer);
@@ -78,7 +102,7 @@ public ref struct Parser(Span<byte> buffer, Endian endian = Endian.Big)
 
         if (rOffset + length <= _buffer.Length) {
             _position = rOffset + length;
-            return _buffer[rOffset..(rOffset + length)];
+            return _buffer.Span[rOffset..(rOffset + length)];
         }
 
         throw EoF();
@@ -103,24 +127,24 @@ public ref struct Parser(Span<byte> buffer, Endian endian = Endian.Big)
             _position = rOffset + bufferSize;
 
             if (blockSize > 1 && IsNotSystemByteOrder()) {
-                Span<byte> buffer = new byte[bufferSize];
+                Memory<byte> buffer = new byte[bufferSize];
                 _buffer[rOffset..(rOffset + bufferSize)].CopyTo(buffer);
                 ReverseStructSpanBuffer<T>(buffer, blockSize, length);
-                return MemoryMarshal.Cast<byte, T>(buffer);
+                return MemoryMarshal.Cast<byte, T>(buffer.Span);
             }
 
-            return MemoryMarshal.Cast<byte, T>(_buffer[rOffset..(rOffset + bufferSize)]);
+            return MemoryMarshal.Cast<byte, T>(_buffer[rOffset..(rOffset + bufferSize)].Span);
         }
 
         throw EoF();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ReverseStructSpanBuffer<T>(in Span<byte> buffer, int blockSize, int blockChainLength) where T : struct, IReversable
+    private static void ReverseStructSpanBuffer<T>(in Memory<byte> buffer, int blockSize, int blockChainLength) where T : struct, IReversable
     {
         for (int i = 0; i < blockChainLength; i++) {
             int blockOffset = blockSize * i;
-            T.Reverse(buffer[blockOffset..(blockOffset + blockSize)]);
+            T.Reverse(buffer[blockOffset..(blockOffset + blockSize)].Span);
         }
     }
 
@@ -129,14 +153,20 @@ public ref struct Parser(Span<byte> buffer, Endian endian = Endian.Big)
         => new("The requested buffer is larger than the source buffer");
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private readonly int ResolveOffset(in int optionalOffset)
+    private int ResolveOffset(in int optionalOffset)
         => optionalOffset < 0 ? _position : optionalOffset;
 
-    /// <summary>
-    /// Returns true or false based on the OS byte-order and read endianness
-    /// </summary>
-    /// <returns></returns>
+    /// <inheritdoc cref="IsNotSystemByteOrder(Endian)"/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly bool IsNotSystemByteOrder()
-        => Endian == Endian.Big && BitConverter.IsLittleEndian || Endian == Endian.Little && !BitConverter.IsLittleEndian;
+    public bool IsNotSystemByteOrder()
+        => IsNotSystemByteOrder(_endianness);
+
+    /// <summary>
+    /// </summary>
+    /// <returns>
+    /// <see langword="true"/> if the system <see cref="Endian"/> does not match the provided <paramref name="endianness"/>
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool IsNotSystemByteOrder(Endian endianness)
+        => endianness == Endian.Big && BitConverter.IsLittleEndian || endianness == Endian.Little && !BitConverter.IsLittleEndian;
 }
