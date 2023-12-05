@@ -1,5 +1,5 @@
 ﻿#if RELEASE
-BenchmarkDotNet.Running.BenchmarkRunner.Run<MessageStudio.Runner.Benchmarks.MsbtParserBenchmarks>();
+BenchmarkDotNet.Running.BenchmarkRunner.Run<MessageStudio.Runner.Benchmarks.MsbtWriteBenchmarks>();
 #else
 
 using MessageStudio.Core.Formats.BinaryText;

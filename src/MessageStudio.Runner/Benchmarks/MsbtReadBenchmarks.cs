@@ -7,7 +7,7 @@ using MsbtLib;
 namespace MessageStudio.Runner.Benchmarks;
 
 [MemoryDiagnoser(true)]
-public class MsbtParserBenchmarks
+public class MsbtReadBenchmarks
 {
     private byte[] _bufferLe = [];
     private byte[] _bufferBe = [];
