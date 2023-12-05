@@ -6,9 +6,9 @@ using System.Text;
 
 namespace MessageStudio.Core.Formats.BinaryText;
 
-public struct ReadOnlyMsbt
+public readonly struct ReadOnlyMsbt
 {
-    public MsbtHeader Header;
+    public readonly MsbtHeader Header;
 
     public MsbtAttributeSection? AttributeSection { get; }
     public MsbtLabelSection LabelSection { get; }
@@ -44,13 +44,13 @@ public struct ReadOnlyMsbt
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly Msbt GetWriter() => new(this);
+    public Msbt GetWriter() => new(this);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Msbt(ReadOnlyMsbt parser)
         => parser.GetWriter();
 
-    public readonly string ToYaml()
+    public string ToYaml()
     {
         StringBuilder sb = new();
         if (AttributeSection?.AttributeSize == 0) {
@@ -64,7 +64,17 @@ public struct ReadOnlyMsbt
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private readonly void WriteWithAttributes(ref StringBuilder sb)
+    private void Write(ref StringBuilder sb)
+    {
+        foreach (var label in LabelSection) {
+            sb.Append(label.Value);
+            sb.Append(": |-\n  ");
+            sb.AppendLine(TextSection[label.Index].Value.Replace("\n", "\n  "));
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteWithAttributes(ref StringBuilder sb)
     {
         foreach (var label in LabelSection) {
             sb.Append(label.Value);
@@ -73,16 +83,6 @@ public struct ReadOnlyMsbt
             sb.AppendLine(AttributeSection![label.Index].Value ?? "~");
             sb.Append("  Text: |-\n    ");
             sb.AppendLine(TextSection[label.Index].Value.Replace("\n", "\n    "));
-        }
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private readonly void Write(ref StringBuilder sb)
-    {
-        foreach (var label in LabelSection) {
-            sb.Append(label.Value);
-            sb.Append(": |-\n  ");
-            sb.AppendLine(TextSection[label.Index].Value.Replace("\n", "\n  "));
         }
     }
 }
