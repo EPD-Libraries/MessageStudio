@@ -83,6 +83,7 @@ public class MemoryWriter : IDisposable
     {
         ushort* ptr = Utf16StringMarshaller.ConvertToUnmanaged(value);
         if (IsNotSystemByteOrder()) {
+            // TODO: This is a rather inefficient way of reversing the endianness
             for (int i = 0; i < value.Length; i++) {
                 ptr[i] = BinaryPrimitives.ReverseEndianness(ptr[i]);
             }
