@@ -22,7 +22,7 @@ internal static class MsbtTextSectionWriter
 
         writer.Seek(sectionOffset - HeaderSize);
         writer.Write("TXT2"u8);
-        writer.Write(new SectionHeader((int)sectionSize));
+        writer.WriteStruct(new SectionHeader((int)sectionSize));
 
         writer.Move(sectionSize);
         writer.Align(0x10);

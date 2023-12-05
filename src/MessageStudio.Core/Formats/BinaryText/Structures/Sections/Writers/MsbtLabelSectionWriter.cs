@@ -29,7 +29,7 @@ internal static class MsbtLabelSectionWriter
 
         writer.Seek(sectionOffset - HeaderSize);
         writer.Write("LBL1"u8);
-        writer.Write(new SectionHeader((int)sectionSize));
+        writer.WriteStruct(new SectionHeader((int)sectionSize));
 
         writer.Move(sectionSize);
         writer.Align(0x10);
