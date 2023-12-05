@@ -24,22 +24,33 @@ public class MemoryWriter : IDisposable
         _stream = stream;
     }
 
+    public long Position {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => _stream.Position;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Seek(int position)
+    public void Seek(long position)
     {
         _stream.Seek(position, SeekOrigin.Begin);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Move(int length)
+    public void Move(long length)
     {
         _stream.Seek(length, SeekOrigin.Current);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Align(int value)
+    public void Align(long value)
     {
         _stream.Seek((value - _stream.Position % value) % value, SeekOrigin.Current);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Write(ReadOnlySpan<byte> buffer)
+    {
+        _stream.Write(buffer);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
