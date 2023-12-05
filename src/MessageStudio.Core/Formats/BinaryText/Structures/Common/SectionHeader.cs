@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace MessageStudio.Core.Formats.BinaryText.Structures.Common;
 
 [StructLayout(LayoutKind.Sequential, Size = 12)]
-public readonly partial struct SectionHeader : IReversable
+public readonly struct SectionHeader : IReversable
 {
     public const int LayoutSize = 12;
 
