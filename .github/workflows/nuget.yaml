@@ -51,7 +51,7 @@ jobs:
           dotnet pack src/${{ env.project_name }}/${{ env.project_name }}.csproj \
           --no-restore                                                           \
           -c Release                                                             \
-          -o ./build-output/                                                            \
+          -o ./build-output/                                                     \
           -p:Authors="${{ env.authors }}"                                        \
           -p:Description="${{ env.description }}"                                \
           -p:PackageLicenseExpression="${{ env.spdx }}"                          \
@@ -65,5 +65,5 @@ jobs:
         shell: bash
         run: |-
           dotnet nuget push ./build-output/*.nupkg \
-          -k ${{ secrets.NUGET_AUTH }}      \
-          -s ${{ env.nuget }}               \
+          -k ${{ secrets.NUGET_AUTH }}             \
+          -s ${{ env.nuget }}                      \
