@@ -21,9 +21,11 @@ foreach (MsbtLabel label in msbt.ReadOnly.LabelSection) {
     Console.WriteLine($"{label.Index}: {label.Value}");
 }
 
-Console.WriteLine("\nAttributes:");
-foreach (MsbtAttribute atr in msbt.ReadOnly.AttributeSection!) {
-    Console.WriteLine($"{atr.Index}: {atr.Value}");
+if (msbt.ReadOnly.AttributeSection is not null) {
+    Console.WriteLine("\nAttributes:");
+    foreach (MsbtAttribute atr in msbt.ReadOnly.AttributeSection) {
+        Console.WriteLine($"{atr.Index}: {atr.Value}");
+    }
 }
 
 Console.WriteLine("\nText:");
