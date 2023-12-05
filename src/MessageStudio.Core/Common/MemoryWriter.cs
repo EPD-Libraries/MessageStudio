@@ -81,6 +81,12 @@ public class MemoryWriter : IDisposable
     public unsafe void WriteUtf16String(string value)
     {
         ushort* ptr = Utf16StringMarshaller.ConvertToUnmanaged(value);
+        if (IsNotSystemByteOrder()) {
+            for (int i = 0; i < value.Length; i++) {
+                ptr[i] = BinaryPrimitives.ReverseEndianness(ptr[i]);
+            }
+        }
+
         Span<ushort> buffer = new(ptr, value.Length);
         _stream.Write(MemoryMarshal.Cast<ushort, byte>(buffer));
     }
