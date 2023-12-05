@@ -10,6 +10,7 @@ public enum Encoding : byte
 
 public struct MsbtHeader
 {
+    public const int Size = 32;
     public const string Magic = "MsgStdBn";
 
     public Endian ByteOrderMark = Endian.Big;
