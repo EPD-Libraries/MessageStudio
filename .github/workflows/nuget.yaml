@@ -48,18 +48,18 @@ jobs:
       - name: Package
         shell: bash
         run: |
-          dotnet pack ${{ env.csproj }}                                      \
-          --no-restore                                                       \
-          -c Release                                                         \
-          -o /output/                                                        \
-          -p:Authors="${{ env.authors }}"                                    \
-          -p:Description="${{ env.description }}"                            \
-          -p:PackageLicenseExpression="${{ env.spdx }}"                      \
-          -p:PackageProjectUrl="${{ env.repo }}"                             \
-          -p:PackageReadmeFile="${{ env.readme }}"                           \
-          -p:PackageTags='"${{ env.tags }}"'                                 \
-          -p:PackageVersion="${{ steps.version.outputs.version-without-v }}" \
-          -p:RepositoryUrl="${{ env.repo }}"                                 \
+          dotnet pack src/${{ env.project_name }}/${{ env.project_name }}.csproj \
+          --no-restore                                                           \
+          -c Release                                                             \
+          -o /output/                                                            \
+          -p:Authors="${{ env.authors }}"                                        \
+          -p:Description="${{ env.description }}"                                \
+          -p:PackageLicenseExpression="${{ env.spdx }}"                          \
+          -p:PackageProjectUrl="${{ env.repo }}"                                 \
+          -p:PackageReadmeFile="${{ env.readme }}"                               \
+          -p:PackageTags='"${{ env.tags }}"'                                     \
+          -p:PackageVersion="${{ steps.version.outputs.version-without-v }}"     \
+          -p:RepositoryUrl="${{ env.repo }}"                                     \
 
       - name: Push
         shell: bash
