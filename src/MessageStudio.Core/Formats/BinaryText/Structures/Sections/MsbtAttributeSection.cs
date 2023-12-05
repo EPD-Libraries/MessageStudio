@@ -1,6 +1,5 @@
 ﻿using MessageStudio.Core.Common;
 using MessageStudio.Core.Formats.BinaryText.Structures.Common;
-using System;
 using System.Buffers.Binary;
 using System.Collections;
 using System.Runtime.CompilerServices;
@@ -10,6 +9,8 @@ namespace MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 
 public unsafe class MsbtAttributeSection : IEnumerable<MsbtAttribute>
 {
+    private const int HeaderSize = 16;
+
     private readonly MemoryReader? _reader;
     private readonly ushort* _strings;
     private readonly int _firstOffset;
