@@ -1,4 +1,5 @@
 ﻿using MessageStudio.Core.Common.Extensions;
+using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
