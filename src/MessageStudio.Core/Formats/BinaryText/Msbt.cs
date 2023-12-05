@@ -79,7 +79,7 @@ public class Msbt : Dictionary<string, MsbtEntry>
 
         foreach (var label in reader.LabelSection) {
             Add(label.Value, new MsbtEntry {
-                Attribute = reader.AttributeSection?[label.Index].Value,
+                Attribute = reader.AttributeSection?[label.Index]?.Value,
                 Text = reader.TextSection[label.Index].Value
             });
         }

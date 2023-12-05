@@ -14,12 +14,12 @@ public unsafe class MsbtAttributeSection : IEnumerable<MsbtAttribute>
     private readonly MemoryReader? _reader;
     private readonly ushort* _strings;
     private readonly int _firstOffset;
-    private MsbtAttribute[]? _cache;
+    private MsbtAttribute?[]? _cache;
 
     public int AttributeSize { get; }
     public int Count { get; }
 
-    public unsafe MsbtAttribute this[int index] {
+    public unsafe MsbtAttribute? this[int index] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get => (_cache ??= CacheEntries())[index];
     }
@@ -65,9 +65,9 @@ public unsafe class MsbtAttributeSection : IEnumerable<MsbtAttribute>
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private MsbtAttribute[] CacheEntries()
+    private MsbtAttribute?[] CacheEntries()
     {
-        MsbtAttribute[] result = new MsbtAttribute[Count];
+        MsbtAttribute?[] result = new MsbtAttribute?[Count];
         if (_reader is null) {
             return result;
         }
@@ -89,17 +89,17 @@ public unsafe class MsbtAttributeSection : IEnumerable<MsbtAttribute>
         => GetEnumerator();
 
     [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public struct Enumerator(MsbtAttributeSection section) : IEnumerator<MsbtAttribute>
+    public struct Enumerator(MsbtAttributeSection section) : IEnumerator<MsbtAttribute?>
     {
         private readonly MsbtAttributeSection _section = section;
         private int _index = -1;
 
-        readonly object IEnumerator.Current {
+        readonly object? IEnumerator.Current {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Current;
         }
 
-        public readonly MsbtAttribute Current {
+        public readonly MsbtAttribute? Current {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _section[_index];
         }
