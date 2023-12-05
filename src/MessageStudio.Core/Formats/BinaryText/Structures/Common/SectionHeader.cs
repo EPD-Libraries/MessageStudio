@@ -10,6 +10,12 @@ public readonly partial struct SectionHeader : IReversable
 
     public readonly int SectionSize;
 
+    public SectionHeader() { }
+    public SectionHeader(int sectionSize)
+    {
+        SectionSize = sectionSize;
+    }
+
     public static void Reverse(in Span<byte> buffer)
     {
         buffer[0..4].Reverse();
