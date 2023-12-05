@@ -1,5 +1,8 @@
 ﻿using MessageStudio.Core.Common;
+using MessageStudio.Core.Formats.BinaryText.Structures;
+using MessageStudio.Core.Formats.BinaryText.Structures.Sections.Writers;
 using System.Runtime.CompilerServices;
+using StringBuilder = System.Text.StringBuilder;
 
 namespace MessageStudio.Core.Formats.BinaryText;
 
@@ -9,6 +12,44 @@ public class Msbt : Dictionary<string, MsbtEntry>
 
     public static Msbt FromBinary(in Memory<byte> buffer)
         => new(buffer);
+
+    public void ToBinary(in Stream stream, Endian endianness = Endian.Little, Encoding encoding = Encoding.Unicode)
+    {
+        MemoryWriter writer = new(stream, endianness);
+        ushort sectionCount = 0;
+        bool usesAttributes = UsesAttributes();
+
+        writer.Seek(MsbtHeader.Size);
+
+        Dictionary<string, MsbtEntry> sorted = usesAttributes
+            ? this
+                .OrderBy(x => x.Value.Attribute)
+                .OrderBy(x => x.Value.Attribute is null)
+                .ToDictionary(x => x.Key, x => x.Value)
+            : this;
+
+        sectionCount++;
+        MsbtLabelSectionWriter.Write(ref writer, sorted.Keys);
+
+        if (UsesAttributes()) {
+            sectionCount++;
+            string?[] attributes = sorted.Select(x => x.Value.Attribute).ToArray();
+            MsbtAttributeSectionWriter.Write(ref writer, encoding, attributes);
+        }
+
+        sectionCount++;
+        MsbtTextSectionWriter.Write(ref writer, encoding, sorted.Values.Select(x => x.Text).ToArray());
+
+        MsbtHeader header = new() {
+            Encoding = Encoding.Unicode,
+            Version = 3,
+            SectionCount = sectionCount,
+            FileSize = (uint)writer.Position,
+        };
+
+        writer.Seek(0);
+        header.Write(ref writer);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string? ToYaml()
@@ -43,6 +84,9 @@ public class Msbt : Dictionary<string, MsbtEntry>
             });
         }
     }
+
+    private bool UsesAttributes()
+        => this.Any(x => !string.IsNullOrEmpty(x.Value.Attribute));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void Write(ref StringBuilder sb)

@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using MessageStudio.Core.Common;
+using MessageStudio.Core.Common.Extensions;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace MessageStudio.Core.Formats.BinaryText.Structures.Tags;
@@ -19,12 +21,31 @@ public unsafe class UnknownTag(ushort* data, int dataSize, ushort group, ushort 
 
     public static IMsbtTag FromText(ReadOnlySpan<char> text)
     {
-        throw new NotImplementedException();
+        ushort group = ushort.Parse(text[1..text.IndexOf(' ')]);
+        ushort type = ushort.Parse(text.ReadProperty("Type"));
+        ReadOnlySpan<byte> data = Convert.FromHexString(text.ReadProperty("Data")[2..]);
+
+        fixed (ushort* ptr = MemoryMarshal.Cast<byte, ushort>(data)) {
+            return new UnknownTag(ptr, data.Length / 2, group, type);
+        }
     }
 
-    public byte[] ToBinary()
+    public void ToBinary(ref MemoryWriter writer)
     {
-        throw new NotImplementedException();
+        writer.Write<ushort>(0xE);
+        writer.Write(_group);
+        writer.Write(_type);
+        writer.Write((ushort)(_dataSize * 2));
+
+        if (writer.IsNotSystemByteOrder()) {
+            for (int i = 0; i < _dataSize; i++) {
+                writer.Write(_data[i]);
+            }
+        }
+        else {
+            ReadOnlySpan<ushort> buffer = new(_data, _dataSize);
+            writer.Write(MemoryMarshal.Cast<ushort, byte>(buffer));
+        }
     }
 
     public void ToText(ref StringBuilder sb)

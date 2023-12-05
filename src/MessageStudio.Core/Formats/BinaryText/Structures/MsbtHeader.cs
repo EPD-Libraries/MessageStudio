@@ -37,4 +37,19 @@ public struct MsbtHeader
         FileSize = reader.Read<uint>();
         reader.Move(0xA);
     }
+
+    public readonly void Write(ref MemoryWriter writer)
+    {
+        writer.WriteUtf8String(Magic);
+        writer.Write(Endian.Big);
+        writer.Move(2);
+
+        writer.Write(Encoding);
+        writer.Write(Version);
+        writer.Write(SectionCount);
+        writer.Move(2);
+
+        writer.Write(FileSize);
+        writer.Move(0xA);
+    }
 }

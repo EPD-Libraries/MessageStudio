@@ -8,4 +8,9 @@ public static class MsbtTagManager
     {
         return UnknownTag.FromBinary(group, type, data);
     }
+
+    public static IMsbtTag FromText(in ReadOnlySpan<char> text)
+    {
+        return UnknownTag.FromText(text);
+    }
 }
