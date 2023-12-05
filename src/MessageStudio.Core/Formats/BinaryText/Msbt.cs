@@ -11,7 +11,18 @@ public class Msbt : Dictionary<string, MsbtEntry>
         => new(buffer);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string? ToYaml() => ReadOnly.ToYaml();
+    public string? ToYaml()
+    {
+        StringBuilder sb = new();
+        if (UsesAttributes()) {
+            WriteWithAttributes(ref sb);
+        }
+        else {
+            Write(ref sb);
+        }
+
+        return sb.ToString();
+    }
 
     public Msbt()
     {
@@ -30,6 +41,29 @@ public class Msbt : Dictionary<string, MsbtEntry>
                 Attribute = reader.AttributeSection?[label.Index].Value,
                 Text = reader.TextSection[label.Index].Value
             });
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void Write(ref StringBuilder sb)
+    {
+        foreach ((var label, var entry) in this) {
+            sb.Append(label);
+            sb.Append(": |-\n  ");
+            sb.AppendLine(entry.Text.Replace("\n", "\n  "));
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteWithAttributes(ref StringBuilder sb)
+    {
+        foreach ((var label, var entry) in this) {
+            sb.Append(label);
+            sb.AppendLine(":");
+            sb.Append("  Attribute: ");
+            sb.AppendLine(entry.Attribute ?? "~");
+            sb.Append("  Text: |-\n    ");
+            sb.AppendLine(entry.Text.Replace("\n", "\n    "));
         }
     }
 }
