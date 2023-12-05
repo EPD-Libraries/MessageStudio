@@ -53,7 +53,7 @@ public readonly struct ReadOnlyMsbt
     public string ToYaml()
     {
         StringBuilder sb = new();
-        if (AttributeSection?.AttributeSize == 0) {
+        if (AttributeSection?.AttributeSize is null or 0) {
             Write(ref sb);
         }
         else {
@@ -80,7 +80,7 @@ public readonly struct ReadOnlyMsbt
             sb.Append(label.Value);
             sb.AppendLine(":");
             sb.Append("  Attribute: ");
-            sb.AppendLine(AttributeSection![label.Index].Value ?? "~");
+            sb.AppendLine(AttributeSection![label.Index]?.Value ?? "~");
             sb.Append("  Text: |-\n    ");
             sb.AppendLine(TextSection[label.Index].Value.Replace("\n", "\n    "));
         }
