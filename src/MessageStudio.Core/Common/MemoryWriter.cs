@@ -107,6 +107,11 @@ public class MemoryWriter : IDisposable
         _stream.Write(buffer);
     }
 
+    /// <inheritdoc cref="EndianExtension.IsNotSystemByteOrder(Endian)"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool IsNotSystemByteOrder()
+        => !_endianness.IsSystemByteOrder();
+
     public void Dispose()
     {
         _stream.Dispose();
