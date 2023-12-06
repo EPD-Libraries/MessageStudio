@@ -30,7 +30,7 @@ internal static class MsbtTextSectionWriter
 
     private static long WriteUtf8(ref MemoryWriter writer, string[] entries, int firstOffset, long sectionOffset)
     {
-        return 0;
+        throw new NotSupportedException("UTF8 encoded MSBT files are not supported");
     }
 
     private static long WriteUtf16(ref MemoryWriter writer, string[] entries, int firstOffset, long sectionOffset)
