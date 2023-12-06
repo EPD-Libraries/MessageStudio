@@ -2,7 +2,7 @@
   "profiles": {
     "MessageStudio.Runner": {
       "commandName": "Project",
-      "commandLineArgs": "\"D:\\bin\\Msbt\\Randomizer.msbt\""
+      "commandLineArgs": "\"D:\\bin\\Msbt\\CtrlGuide_00.msbt\""
     }
   }
 }
