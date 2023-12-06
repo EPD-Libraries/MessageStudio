@@ -8,8 +8,39 @@ Modern implementation of (some) EPD MessageStudio file formats written in manage
 
 - MSBT (**M**essage **S**tudio **B**inary **T**ext)
 
-## Setup
+### MSBT Usage
 
+> From Binary
+```cs
+byte[] data = File.ReadAllBytes("path/to/file.msbt");
+Msbt msbt = Msbt.FromBinary(data);
 ```
-...
+
+> From Binary (Constructor)
+```cs
+byte[] data = File.ReadAllBytes("path/to/file.msbt");
+Msbt msbt = new(data);
+```
+
+> To Binary
+```cs
+/* ... */
+
+using MemoryStream ms = new();
+msbt.ToBinary(ms,
+    endianness: Endian.Little,
+    encoding: Encoding.Unicode // Encoding.UTF8 is not supported!
+);
+```
+
+> To Yaml
+```cs
+/* ... */
+
+string yaml = msbt.ToYaml();
+
+// For performance, use ReadOnlyMsbt
+byte[] data = File.ReadAllBytes("path/to/file.msbt");
+ReadOnlyMsbt readOnlyMsbt = new(data);
+string yaml = readOnlyMsbt.ToYaml();
 ```
