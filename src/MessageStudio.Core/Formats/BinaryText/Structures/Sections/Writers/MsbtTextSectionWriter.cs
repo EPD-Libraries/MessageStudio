@@ -67,8 +67,14 @@ internal static class MsbtTextSectionWriter
             char value = text[i];
             int endTagIndex;
             if (value == '<' && (endTagIndex = text[i..].IndexOf('>')) > -1) {
-                IMsbtTag tag = MsbtTagManager.FromText(text[i..((i += endTagIndex) + 1)]);
-                tag.ToBinary(ref writer);
+                ReadOnlySpan<char> tagStr = text[i..((i += endTagIndex) + 1)];
+                if (tagStr.Length > 1 && tagStr[1] == '[') {
+                    MsbtEndTag.ToBinary(ref writer, tagStr);
+                }
+                else {
+                    IMsbtTag tag = MsbtTagManager.FromText(tagStr);
+                    tag.ToBinary(ref writer);
+                }
             }
             else {
                 writer.Write(value);

@@ -52,7 +52,9 @@ public unsafe class MsbtText(int index, byte* valuePtr, int valueLength, Encodin
                     i--;
                 }
                 else if (value == 0xF) {
-                    throw new NotSupportedException("0xF tags are not yet supported");
+                    ushort endTagGroup = reader.Read(++i);
+                    ushort endTagType = reader.Read(++i);
+                    MsbtEndTag.ToText(ref sb, endTagGroup, endTagType);
                 }
                 else {
                     sb.Append((char)value);
