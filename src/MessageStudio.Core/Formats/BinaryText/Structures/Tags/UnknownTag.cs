@@ -63,6 +63,6 @@ public unsafe class UnknownTag(ushort* data, int dataSize, ushort group, ushort 
             sb.Append(Convert.ToHexString(MemoryMarshal.Cast<ushort, byte>(span)));
         }
 
-        sb.Append("' />");
+        sb.Append("'/>");
     }
 }
