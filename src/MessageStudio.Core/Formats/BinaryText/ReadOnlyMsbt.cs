@@ -14,6 +14,7 @@ public readonly struct ReadOnlyMsbt
     public MsbtLabelSection LabelSection { get; }
     public MsbtTextSection TextSection { get; }
 
+    public ReadOnlyMsbt(byte[] buffer) : this(new MemoryReader(buffer)) { }
     public ReadOnlyMsbt(MemoryReader reader)
     {
         if ((reader.Endianness = (Header = new MsbtHeader(reader)).ByteOrderMark) is Endian.Little) {
