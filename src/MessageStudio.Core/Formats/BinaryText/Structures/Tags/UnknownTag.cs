@@ -23,7 +23,9 @@ public unsafe class UnknownTag(ushort* data, int dataSize, ushort group, ushort 
     {
         ushort group = ushort.Parse(text[1..text.IndexOf(' ')]);
         ushort type = ushort.Parse(text.ReadProperty("Type"));
-        ReadOnlySpan<byte> data = Convert.FromHexString(text.ReadProperty("Data")[2..]);
+
+        ReadOnlySpan<char> hex = text.ReadProperty("Data");
+        ReadOnlySpan<byte> data = hex.IsEmpty ? [] : Convert.FromHexString(hex[2..]);
 
         fixed (ushort* ptr = MemoryMarshal.Cast<byte, ushort>(data)) {
             return new UnknownTag(ptr, data.Length / 2, group, type);
@@ -54,10 +56,13 @@ public unsafe class UnknownTag(ushort* data, int dataSize, ushort group, ushort 
         sb.Append(_group);
         sb.Append(" Type='");
         sb.Append(_type);
-        sb.Append("' Data='0x");
 
-        ReadOnlySpan<ushort> span = new(_data, _dataSize);
-        sb.Append(Convert.ToHexString(MemoryMarshal.Cast<ushort, byte>(span)));
+        if (_dataSize > 0) {
+            sb.Append("' Data='0x");
+            ReadOnlySpan<ushort> span = new(_data, _dataSize);
+            sb.Append(Convert.ToHexString(MemoryMarshal.Cast<ushort, byte>(span)));
+        }
+
         sb.Append("' />");
     }
 }

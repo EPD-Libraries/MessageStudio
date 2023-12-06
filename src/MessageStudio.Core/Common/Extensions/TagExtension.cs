@@ -13,7 +13,12 @@ public static class TagExtension
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ReadOnlySpan<char> ReadProperty(in this ReadOnlySpan<char> text, in ReadOnlySpan<char> name)
     {
-        int startIndex = text.IndexOf(name) + name.Length + 2;
+        int startIndex = text.IndexOf(name);
+        if (startIndex <= 0) {
+            return [];
+        }
+
+        startIndex += name.Length + 2;
         int endIndex = startIndex + text[startIndex..].IndexOf('\'');
         return text[startIndex..endIndex];
     }
