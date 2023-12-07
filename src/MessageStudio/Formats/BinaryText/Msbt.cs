@@ -2,6 +2,7 @@
 using MessageStudio.Formats.BinaryText.Writers;
 using MessageStudio.IO;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace MessageStudio.Formats.BinaryText;
 

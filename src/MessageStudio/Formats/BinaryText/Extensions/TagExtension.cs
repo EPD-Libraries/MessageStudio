@@ -27,7 +27,7 @@ public static class TagExtension
         sb.Append("'/>");
     }
 
-    internal static void WriteTag(this InternalWriter writer, ReadOnlySpan<char> text, Encoding encoding)
+    internal static void WriteTag(this InternalWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
     {
         ReadOnlySpan<char> group = text.ReadTagName();
         ReadOnlySpan<char> type = text.ReadProperty("Type");
@@ -35,7 +35,7 @@ public static class TagExtension
         ReadOnlySpan<byte> data = hexData.IsEmpty
             ? [] : Convert.FromHexString(hexData[2..]);
 
-        if (encoding == Encoding.UTF8) {
+        if (encoding == TextEncoding.UTF8) {
             writer.Write<byte>(0xE);
             writer.Write(byte.Parse(group));
             writer.Write(byte.Parse(type));
@@ -69,7 +69,7 @@ public static class TagExtension
         sb.Append("]>");
     }
 
-    internal static void WriteEndTag(this InternalWriter writer, ReadOnlySpan<char> text, Encoding encoding)
+    internal static void WriteEndTag(this InternalWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
     {
         int typeIndex = text.IndexOf('|');
         int endIndex = text.IndexOf(']');
@@ -77,7 +77,7 @@ public static class TagExtension
         ReadOnlySpan<char> group = text[2..typeIndex];
         ReadOnlySpan<char> type = text[++typeIndex..endIndex];
 
-        if (encoding == Encoding.UTF8) {
+        if (encoding == TextEncoding.UTF8) {
             writer.Write<byte>(0xF);
             writer.Write(byte.Parse(group));
             writer.Write(byte.Parse(type));
