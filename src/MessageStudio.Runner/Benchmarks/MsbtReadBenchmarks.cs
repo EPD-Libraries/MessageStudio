@@ -1,7 +1,5 @@
 ﻿using BenchmarkDotNet.Attributes;
-using MessageStudio.Core.Common;
 using MessageStudio.Core.Formats.BinaryText;
-using MessageStudio.Core.Formats.BinaryText.Structures.Sections;
 using MsbtLib;
 
 namespace MessageStudio.Runner.Benchmarks;
@@ -24,78 +22,39 @@ public class MsbtReadBenchmarks
     [Benchmark]
     public void ParseLE()
     {
-        MemoryReader reader = new(_bufferLe);
-        ReadOnlyMsbt msbt = new(reader);
-        foreach (MsbtLabel label in msbt.LabelSection) {
-            _ = label.Index;
-            _ = label.Value;
-        }
-        foreach (MsbtAttribute atr in msbt.AttributeSection!) {
-            _ = atr.Index;
-            _ = atr.Value;
-        }
-        foreach (MsbtText txt in msbt.TextSection) {
-            _ = txt.Index;
-            _ = txt.Value;
-        }
+        _ = Msbt.FromBinary(_bufferLe);
     }
 
     [Benchmark]
     public void ParseBE()
     {
-        MemoryReader reader = new(_bufferBe);
-        ReadOnlyMsbt msbt = new(reader);
-        foreach (MsbtLabel label in msbt.LabelSection) {
-            _ = label.Index;
-            _ = label.Value;
-        }
-        foreach (MsbtAttribute atr in msbt.AttributeSection!) {
-            _ = atr.Index;
-            _ = atr.Value;
-        }
-        foreach (MsbtText txt in msbt.TextSection) {
-            _ = txt.Index;
-            _ = txt.Value;
-        }
+        _ = Msbt.FromBinary(_bufferBe);
     }
     
     [Benchmark]
     public void ParseBELarge()
     {
-        MemoryReader reader = new(_bufferBeLarge);
-        ReadOnlyMsbt msbt = new(reader);
-        foreach (MsbtLabel label in msbt.LabelSection) {
-            _ = label.Index;
-            _ = label.Value;
-        }
-        foreach (MsbtAttribute atr in msbt.AttributeSection!) {
-            _ = atr.Index;
-            _ = atr.Value;
-        }
-        foreach (MsbtText txt in msbt.TextSection) {
-            _ = txt.Index;
-            _ = txt.Value;
-        }
+        _ = Msbt.FromBinary(_bufferBeLarge);
     }
     
     [Benchmark]
     public void ParseLE_MsbtLib()
     {
         MSBT msbt = new(_bufferLe);
-        foreach ((var _, var _) in msbt.GetTexts()) { }
+        msbt.GetTexts();
     }
     
     [Benchmark]
     public void ParseBE_MsbtLib()
     {
         MSBT msbt = new(_bufferBe);
-        foreach ((var _, var _) in msbt.GetTexts()) { }
+        _ = msbt.GetTexts();
     }
     
     [Benchmark]
     public void ParseBELarge_MsbtLib()
     {
         MSBT msbt = new(_bufferBeLarge);
-        foreach ((var _, var _) in msbt.GetTexts()) { }
+        _ = msbt.GetTexts();
     }
 }

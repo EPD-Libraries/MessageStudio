@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
-using MessageStudio.Core.Common;
 using MessageStudio.Core.Formats.BinaryText;
+using MessageStudio.Core.IO;
 using MsbtLib;
 
 namespace MessageStudio.Runner.Benchmarks;
@@ -42,19 +42,19 @@ public class MsbtWriteBenchmarks
     [Benchmark]
     public void WriteLE()
     {
-        _newMsbtLe.ToBinary(_newMsbtLeMs, Endian.Little);
+        _newMsbtLe.ToBinary(_newMsbtLeMs, endianness: Endian.Little);
     }
 
     [Benchmark]
     public void WriteBE()
     {
-        _newMsbtBe.ToBinary(_newMsbtBeMs, Endian.Big);
+        _newMsbtBe.ToBinary(_newMsbtBeMs, endianness: Endian.Big);
     }
 
     [Benchmark]
     public void WriteBELarge()
     {
-        _newMsbtBeLarge.ToBinary(_newMsbtBeLargeMs, Endian.Big);
+        _newMsbtBeLarge.ToBinary(_newMsbtBeLargeMs, endianness: Endian.Big);
     }
 
     [Benchmark]

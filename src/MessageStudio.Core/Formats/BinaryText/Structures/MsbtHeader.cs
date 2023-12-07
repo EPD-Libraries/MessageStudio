@@ -1,55 +1,49 @@
-﻿using MessageStudio.Core.Common;
+﻿using MessageStudio.Core.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace MessageStudio.Core.Formats.BinaryText.Structures;
 
-public enum Encoding : byte
+[StructLayout(LayoutKind.Explicit, Size = 32)]
+public readonly struct MsbtHeader
 {
-    UTF8 = 0,
-    Unicode = 1,
-}
+    [FieldOffset(0x00)]
+    public readonly ulong Magic;
 
-public struct MsbtHeader
-{
-    public const int Size = 32;
-    public const string Magic = "MsgStdBn";
+    [FieldOffset(0x08)]
+    public readonly Endian ByteOrderMark;
 
-    public Endian ByteOrderMark = Endian.Big;
-    public Encoding Encoding = Encoding.Unicode;
-    public byte Version = 1;
-    public ushort SectionCount;
-    public uint FileSize;
+    [FieldOffset(0x0C)]
+    public readonly Encoding Encoding;
 
-    public MsbtHeader(MemoryReader reader)
+    [FieldOffset(0x0D)]
+    public readonly byte Version;
+
+    [FieldOffset(0x0E)]
+    public readonly ushort SectionCount;
+
+    [FieldOffset(0x12)]
+    public readonly uint FileSize;
+
+    public MsbtHeader() { }
+    public MsbtHeader(ulong magic, Endian byteOrderMark, Encoding encoding, byte version, ushort sectionCount, uint fileSize)
     {
-        Span<byte> magic = reader.ReadSpan(8);
-        if (!magic.SequenceEqual("MsgStdBn"u8)) {
-            throw new InvalidDataException("Invalid MSBT magic");
-        }
-
-        ByteOrderMark = reader.Read<Endian>();
-        reader.Move(2);
-
-        Encoding = reader.Read<Encoding>();
-        Version = reader.Read<byte>();
-        SectionCount = reader.Read<ushort>();
-        reader.Move(2);
-
-        FileSize = reader.Read<uint>();
-        reader.Move(0xA);
+        Magic = magic;
+        ByteOrderMark = byteOrderMark;
+        Encoding = encoding;
+        Version = version;
+        SectionCount = sectionCount;
+        FileSize = fileSize;
     }
 
-    public readonly void Write(ref MemoryWriter writer)
+    public class Reverser : ISpanReverser
     {
-        writer.WriteUtf8String(Magic);
-        writer.Write(Endian.Big);
-        writer.Move(2);
-
-        writer.Write(Encoding);
-        writer.Write(Version);
-        writer.Write(SectionCount);
-        writer.Move(2);
-
-        writer.Write(FileSize);
-        writer.Move(0xA);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Reverse(in Span<byte> buffer)
+        {
+            buffer[0x08..0x0A].Reverse();
+            buffer[0x0E..0x10].Reverse();
+            buffer[0x12..0x16].Reverse();
+        }
     }
 }

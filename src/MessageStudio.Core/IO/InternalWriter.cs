@@ -1,17 +1,17 @@
-﻿using MessageStudio.Core.Common.Extensions;
+﻿using MessageStudio.Core.IO.Extensions;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace MessageStudio.Core.Common;
+namespace MessageStudio.Core.IO;
 
-public class MemoryWriter : IDisposable
+internal class InternalWriter : IDisposable
 {
     private readonly Stream _stream;
     private readonly Endian _endianness;
 
-    public MemoryWriter(in Stream stream, Endian endianness)
+    public InternalWriter(in Stream stream, Endian endianness)
     {
         if (!stream.CanWrite) {
             throw new InvalidOperationException("The input stream must be writable");
@@ -55,7 +55,7 @@ public class MemoryWriter : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Write<T>(T value) where T : unmanaged
+    public void Write<T>(in T value) where T : unmanaged
     {
         int blockSize = Unsafe.SizeOf<T>();
         Span<byte> buffer = blockSize <= 0xF0000
@@ -63,7 +63,7 @@ public class MemoryWriter : IDisposable
 
         MemoryMarshal.Write(buffer, value);
 
-        if (_endianness.IsNotSystemByteOrder()) {
+        if (IsNotSystemByteOrder()) {
             buffer.Reverse();
         }
 
@@ -83,7 +83,6 @@ public class MemoryWriter : IDisposable
     {
         ushort* ptr = Utf16StringMarshaller.ConvertToUnmanaged(value);
         if (IsNotSystemByteOrder()) {
-            // TODO: This is a rather inefficient way of reversing the endianness
             for (int i = 0; i < value.Length; i++) {
                 ptr[i] = BinaryPrimitives.ReverseEndianness(ptr[i]);
             }
@@ -94,7 +93,7 @@ public class MemoryWriter : IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteStruct<T>(T value) where T : struct, IReversable
+    public void Write<T, TReverser>(in T value) where T : struct where TReverser : ISpanReverser
     {
         int blockSize = Unsafe.SizeOf<T>();
         Span<byte> buffer = blockSize <= 0xF0000
@@ -103,7 +102,7 @@ public class MemoryWriter : IDisposable
         MemoryMarshal.Write(buffer, value);
 
         if (_endianness.IsNotSystemByteOrder()) {
-            T.Reverse(buffer);
+            TReverser.Reverse(buffer);
         }
 
         _stream.Write(buffer);

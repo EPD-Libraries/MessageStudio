@@ -1,40 +1,25 @@
-﻿using MessageStudio.Core.Common;
-using MessageStudio.Core.Formats.BinaryText.Structures.Common;
+﻿using MessageStudio.Core.IO;
 
-namespace MessageStudio.Core.Formats.BinaryText.Structures.Sections.Writers;
+namespace MessageStudio.Core.Formats.BinaryText.Writers;
 
-internal static class MsbtAttributeSectionWriter
+internal static class AttributeSectionWriter
 {
-    private const int HeaderSize = 16;
-
-    public static void Write(ref MemoryWriter writer, Encoding encoding, string?[] attributes)
+    public static void Write(in InternalWriter writer, Encoding encoding, string?[] attributes)
     {
-        writer.Move(HeaderSize);
-        long sectionOffset = writer.Position;
-
         writer.Write(attributes.Length);
         writer.Write(sizeof(uint));
 
         int firstOffset = attributes.Length * sizeof(uint) + sizeof(uint) + sizeof(uint);
 
         if (encoding is Encoding.UTF8) {
-            WriteUtf8(ref writer, attributes, firstOffset);
+            WriteUtf8(writer, attributes, firstOffset);
         }
         else {
-            WriteUtf16(ref writer, attributes, firstOffset);
+            WriteUtf16(writer, attributes, firstOffset);
         }
-
-        long sectionSize = writer.Position - sectionOffset;
-
-        writer.Seek(sectionOffset - HeaderSize);
-        writer.Write("ATR1"u8);
-        writer.WriteStruct(new SectionHeader((int)sectionSize));
-
-        writer.Move(sectionSize);
-        writer.Align(0x10);
     }
 
-    private static void WriteUtf8(ref MemoryWriter writer, string?[] attributes, int firstOffset)
+    private static void WriteUtf8(in InternalWriter writer, string?[] attributes, int firstOffset)
     {
         int offset = firstOffset;
         foreach (var attribute in attributes) {
@@ -51,7 +36,7 @@ internal static class MsbtAttributeSectionWriter
         }
     }
 
-    private static void WriteUtf16(ref MemoryWriter writer, string?[] attributes, int firstOffset)
+    private static void WriteUtf16(InternalWriter writer, string?[] attributes, int firstOffset)
     {
         int offset = firstOffset;
         foreach (var attribute in attributes) {
