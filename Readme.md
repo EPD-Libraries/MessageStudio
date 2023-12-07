@@ -16,12 +16,6 @@ byte[] data = File.ReadAllBytes("path/to/file.msbt");
 Msbt msbt = Msbt.FromBinary(data);
 ```
 
-> From Binary (Constructor)
-```cs
-byte[] data = File.ReadAllBytes("path/to/file.msbt");
-Msbt msbt = new(data);
-```
-
 > To Binary
 ```cs
 /* ... */
@@ -38,9 +32,4 @@ msbt.ToBinary(ms,
 /* ... */
 
 string yaml = msbt.ToYaml();
-
-// For performance, use ReadOnlyMsbt
-byte[] data = File.ReadAllBytes("path/to/file.msbt");
-ReadOnlyMsbt readOnlyMsbt = new(data);
-string yaml = readOnlyMsbt.ToYaml();
 ```
