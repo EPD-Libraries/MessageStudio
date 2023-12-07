@@ -2,12 +2,12 @@
 using MessageStudio.Formats.BinaryText.Structures;
 using MessageStudio.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace MessageStudio.Formats.BinaryText;
 
 public readonly ref struct ImmutableMsbt
 {
+    public readonly MsbtHeader Header;
     public readonly AttributeSectionReader AttributeSectionReader;
     public readonly LabelSectionReader LabelSectionReader;
     public readonly TextSectionReader TextSectionReader;
@@ -45,6 +45,16 @@ public readonly ref struct ImmutableMsbt
             }
 
             reader.Align(0x10);
+        }
+
+        Header = header;
+
+        // Fix the BoM for consumers
+        unsafe {
+            fixed (Endian* ptr = &Header.ByteOrderMark) {
+                Span<byte> range = new(ptr, sizeof(Endian));
+                range.Reverse();
+            }
         }
     }
 }

@@ -13,6 +13,9 @@ public class Msbt : Dictionary<string, MsbtEntry>
     internal const uint LBL1_MAGIC = 0x314C424C;
     internal const uint TXT2_MAGIC = 0x32545854;
 
+    public Endian Endian { get; set; } = Endian.Little;
+    public TextEncoding Encoding { get; set; } = TextEncoding.Unicode;
+
     /// <summary>
     /// Create a new <see cref="Msbt"/> object from a data buffer
     /// </summary>
@@ -32,7 +35,11 @@ public class Msbt : Dictionary<string, MsbtEntry>
     /// <returns></returns>
     public static Msbt FromImmutable(ref ImmutableMsbt msbt)
     {
-        Msbt managed = [];
+        Msbt managed = new() {
+            Encoding = msbt.Header.Encoding,
+            Endian = msbt.Header.ByteOrderMark
+        };
+
         foreach (var label in msbt.LabelSectionReader) {
             int index = label.Index;
             string? key = label.GetManaged();
