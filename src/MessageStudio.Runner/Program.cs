@@ -58,6 +58,15 @@ foreach (var file in Directory.GetFiles("D:\\bin\\Msbt\\Mals")) {
                 continue;
             }
         }
+
+        string path = Path.Combine(
+            "D:\\bin\\Msbt\\Mals-Yaml",
+            Path.GetFileName(file),
+            Path.GetDirectoryName(name) ?? string.Empty,
+            Path.GetFileNameWithoutExtension(name) + ".yml");
+
+        Directory.CreateDirectory(Path.GetDirectoryName(path) ?? string.Empty);
+        File.WriteAllText(path, msbt.ToYaml());
     }
 }
 
