@@ -7,7 +7,7 @@ on:
 
 env:
   nuget: "https://api.nuget.org/v3/index.json"
-  project_name: MessageStudio.Core
+  project_name: MessageStudio
   authors: ArchLeaders
   description: |-
     Modern implementation of (some) EPD MessageStudio file formats written in managed C#
