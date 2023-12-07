@@ -47,9 +47,4 @@ public readonly ref struct ImmutableMsbt
             reader.Align(0x10);
         }
     }
-
-    public readonly void WriteYaml(in StringBuilder sb)
-    {
-
-    }
 }
