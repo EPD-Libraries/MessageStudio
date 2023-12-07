@@ -53,6 +53,16 @@ public class Msbt : Dictionary<string, MsbtEntry>
         return managed;
     }
 
+    /// <summary>
+    /// Create a new <see cref="Msbt"/> object from a yaml document
+    /// </summary>
+    /// <param name="msbt"></param>
+    /// <returns></returns>
+    public static Msbt FromYaml(in ReadOnlySpan<char> src)
+    {
+        throw new NotImplementedException();
+    }
+
     public void ToBinary(in Stream stream, Encoding encoding = Encoding.Unicode, Endian endianness = Endian.Little)
     {
         using InternalWriter writer = new(stream, endianness);
@@ -98,17 +108,37 @@ public class Msbt : Dictionary<string, MsbtEntry>
         writer.Write<MsbtHeader, MsbtHeader.Reverser>(header);
     }
 
-    /// <summary>
-    /// Convert a MSBT file buffer to Yaml without allocating a <see cref="Msbt"/> object
-    /// </summary>
-    /// <param name="buffer"></param>
-    /// <returns></returns>
-    public static string ToYaml(Span<byte> buffer)
+    public string ToYaml()
     {
-        SpanReader reader = new(buffer);
-        ImmutableMsbt msbt = new(ref reader);
         StringBuilder sb = new();
-        msbt.WriteYaml(sb);
+
+        if (this.Any(x => !string.IsNullOrEmpty(x.Value.Attribute))) {
+            WriteYamlWithAttributes(sb);
+        }
+        else {
+            WriteYaml(sb);
+        }
+
         return sb.ToString();
+    }
+
+    private void WriteYaml(in StringBuilder sb)
+    {
+        foreach ((var label, var entry) in this) {
+            sb.Append(label);
+            sb.Append(": |-\n  ");
+            sb.AppendLine(entry.Text?.Replace("\n", "\n  "));
+        }
+    }
+
+    private void WriteYamlWithAttributes(in StringBuilder sb)
+    {
+        foreach ((var label, var entry) in this) {
+            sb.Append(label);
+            sb.Append(":\n  Attribute: ");
+            sb.AppendLine(string.IsNullOrEmpty(entry.Attribute) ? "~" : entry.Attribute);
+            sb.Append("  Text: |-\n    ");
+            sb.AppendLine(entry.Text?.Replace("\n", "\n  "));
+        }
     }
 }
