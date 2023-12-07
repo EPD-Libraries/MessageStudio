@@ -1,10 +1,10 @@
-﻿using MessageStudio.Core.IO.Extensions;
+﻿using MessageStudio.IO.Extensions;
 using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace MessageStudio.Core.IO;
+namespace MessageStudio.IO;
 
 internal class InternalWriter : IDisposable
 {

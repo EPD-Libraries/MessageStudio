@@ -1,9 +1,9 @@
-﻿using MessageStudio.Core.IO;
+﻿using MessageStudio.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace MessageStudio.Core.Formats.BinaryText.Extensions;
+namespace MessageStudio.Formats.BinaryText.Extensions;
 
 public static class TagExtension
 {

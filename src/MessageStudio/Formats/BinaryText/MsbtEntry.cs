@@ -1,4 +1,4 @@
-﻿namespace MessageStudio.Core.Formats.BinaryText;
+﻿namespace MessageStudio.Formats.BinaryText;
 
 public class MsbtEntry
 {

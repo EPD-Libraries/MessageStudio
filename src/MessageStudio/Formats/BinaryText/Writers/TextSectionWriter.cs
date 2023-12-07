@@ -1,8 +1,8 @@
-﻿using MessageStudio.Core.Formats.BinaryText.Extensions;
-using MessageStudio.Core.IO;
+﻿using MessageStudio.Formats.BinaryText.Extensions;
+using MessageStudio.IO;
 using System.Runtime.CompilerServices;
 
-namespace MessageStudio.Core.Formats.BinaryText.Writers;
+namespace MessageStudio.Formats.BinaryText.Writers;
 
 internal static class TextSectionWriter
 {

@@ -1,11 +1,11 @@
-﻿using MessageStudio.Core.Formats.BinaryText.Extensions;
-using MessageStudio.Core.Formats.BinaryText.Structures;
-using MessageStudio.Core.IO;
+﻿using MessageStudio.Formats.BinaryText.Extensions;
+using MessageStudio.Formats.BinaryText.Structures;
+using MessageStudio.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using StringBuilder = System.Text.StringBuilder;
 
-namespace MessageStudio.Core.Formats.BinaryText.Readers;
+namespace MessageStudio.Formats.BinaryText.Readers;
 
 public readonly ref struct TextSectionReader
 {

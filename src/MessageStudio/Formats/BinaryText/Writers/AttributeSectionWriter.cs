@@ -1,6 +1,6 @@
-﻿using MessageStudio.Core.IO;
+﻿using MessageStudio.IO;
 
-namespace MessageStudio.Core.Formats.BinaryText.Writers;
+namespace MessageStudio.Formats.BinaryText.Writers;
 
 internal static class AttributeSectionWriter
 {

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace MessageStudio.Core.IO.Extensions;
+namespace MessageStudio.IO.Extensions;
 
 internal static class EndianExtension
 {

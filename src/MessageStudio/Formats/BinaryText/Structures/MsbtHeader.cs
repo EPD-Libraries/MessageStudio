@@ -1,8 +1,8 @@
-﻿using MessageStudio.Core.IO;
+﻿using MessageStudio.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace MessageStudio.Core.Formats.BinaryText.Structures;
+namespace MessageStudio.Formats.BinaryText.Structures;
 
 [StructLayout(LayoutKind.Explicit, Size = 32)]
 public readonly struct MsbtHeader

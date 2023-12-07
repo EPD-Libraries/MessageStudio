@@ -1,10 +1,10 @@
-﻿using MessageStudio.Core.Formats.BinaryText.Structures;
-using MessageStudio.Core.IO;
+﻿using MessageStudio.Formats.BinaryText.Structures;
+using MessageStudio.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 
-namespace MessageStudio.Core.Formats.BinaryText.Readers;
+namespace MessageStudio.Formats.BinaryText.Readers;
 
 public readonly ref struct LabelSectionReader
 {

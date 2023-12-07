@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
-using MessageStudio.Core.Formats.BinaryText;
-using MessageStudio.Core.IO;
+using MessageStudio.Formats.BinaryText;
+using MessageStudio.IO;
 using MsbtLib;
 
 namespace MessageStudio.Runner.Benchmarks;

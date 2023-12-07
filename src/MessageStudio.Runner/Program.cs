@@ -1,10 +1,15 @@
 ﻿#if RELEASE
-BenchmarkDotNet.Running.BenchmarkRunner.Run<MessageStudio.Runner.Benchmarks.NewMsbtReadBenchmarks>();
+
+using BenchmarkDotNet.Running;
+using MessageStudio.Runner.Benchmarks;
+
+BenchmarkRunner.Run([typeof(ImmutableMsbtBenchmarks), typeof(MsbtReadBenchmarks), typeof(MsbtWriteBenchmarks)]);
+
 #else
 
-// using MessageStudio.Core.Formats.BinaryText;
-// using MessageStudio.Core.Formats.BinaryText.Structures;
-// using MessageStudio.Core.Formats.BinaryText.Structures.Sections;
+// using MessageStudio.Formats.BinaryText;
+// using MessageStudio.Formats.BinaryText.Structures;
+// using MessageStudio.Formats.BinaryText.Structures.Sections;
 // using SarcLibrary;
 // using System.Collections.Generic;
 
@@ -37,7 +42,7 @@ BenchmarkDotNet.Running.BenchmarkRunner.Run<MessageStudio.Runner.Benchmarks.NewM
 
 //File.WriteAllText("D:\\bin\\Msbt\\test.yml", msbt.ReadOnly.ToYaml());
 
-using MessageStudio.Core.Formats.BinaryText;
+using MessageStudio.Formats.BinaryText;
 using SarcLibrary;
 using System.Diagnostics;
 
@@ -59,4 +64,4 @@ foreach (var file in Directory.GetFiles("D:\\bin\\Msbt\\Mals")) {
 stopwatch.Stop();
 Console.WriteLine($"{stopwatch.ElapsedMilliseconds}ms");
 
-#endif  
+#endif

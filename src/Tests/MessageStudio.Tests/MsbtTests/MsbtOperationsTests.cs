@@ -1,4 +1,4 @@
-﻿namespace MessageStudio.Core.Tests.MsbtTests;
+﻿namespace MessageStudio.Tests.MsbtTests;
 
 public class MsbtOperationsTests
 {

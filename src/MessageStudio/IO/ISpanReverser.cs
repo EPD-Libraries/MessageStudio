@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace MessageStudio.Core.IO;
+namespace MessageStudio.IO;
 
 /// <summary>
 /// Static byte reversal interface for byte re-ordering

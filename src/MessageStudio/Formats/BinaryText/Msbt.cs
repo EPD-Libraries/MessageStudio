@@ -1,10 +1,10 @@
-﻿using MessageStudio.Core.Formats.BinaryText.Structures;
-using MessageStudio.Core.Formats.BinaryText.Writers;
-using MessageStudio.Core.IO;
+﻿using MessageStudio.Formats.BinaryText.Structures;
+using MessageStudio.Formats.BinaryText.Writers;
+using MessageStudio.IO;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace MessageStudio.Core.Formats.BinaryText;
+namespace MessageStudio.Formats.BinaryText;
 
 public enum Encoding : byte
 {

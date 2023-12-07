@@ -1,8 +1,8 @@
-﻿using MessageStudio.Core.IO.Extensions;
+﻿using MessageStudio.IO.Extensions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace MessageStudio.Core.IO;
+namespace MessageStudio.IO;
 
 public enum Endian : ushort
 {
