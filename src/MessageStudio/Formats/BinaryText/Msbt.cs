@@ -2,15 +2,8 @@
 using MessageStudio.Formats.BinaryText.Writers;
 using MessageStudio.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace MessageStudio.Formats.BinaryText;
-
-public enum Encoding : byte
-{
-    UTF8 = 0,
-    Unicode = 1,
-}
 
 public class Msbt : Dictionary<string, MsbtEntry>
 {
@@ -63,7 +56,7 @@ public class Msbt : Dictionary<string, MsbtEntry>
         throw new NotImplementedException();
     }
 
-    public void ToBinary(in Stream stream, Encoding encoding = Encoding.Unicode, Endian endianness = Endian.Little)
+    public void ToBinary(in Stream stream, TextEncoding encoding = TextEncoding.Unicode, Endian endianness = Endian.Little)
     {
         InternalWriter writer = new(stream, endianness);
         ushort sectionCount = 0;

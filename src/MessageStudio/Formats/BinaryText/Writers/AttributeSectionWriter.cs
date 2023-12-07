@@ -4,14 +4,14 @@ namespace MessageStudio.Formats.BinaryText.Writers;
 
 internal static class AttributeSectionWriter
 {
-    public static void Write(in InternalWriter writer, Encoding encoding, string?[] attributes)
+    public static void Write(in InternalWriter writer, TextEncoding encoding, string?[] attributes)
     {
         writer.Write(attributes.Length);
         writer.Write(sizeof(uint));
 
         int firstOffset = attributes.Length * sizeof(uint) + sizeof(uint) + sizeof(uint);
 
-        if (encoding is Encoding.UTF8) {
+        if (encoding is TextEncoding.UTF8) {
             WriteUtf8(writer, attributes, firstOffset);
         }
         else {

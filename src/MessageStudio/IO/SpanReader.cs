@@ -4,12 +4,6 @@ using System.Runtime.InteropServices;
 
 namespace MessageStudio.IO;
 
-public enum Endian : ushort
-{
-    Big = 0xFEFF,
-    Little = 0xFFFE,
-}
-
 public ref struct SpanReader(Span<byte> buffer, Endian endianness = Endian.Big)
 {
     private readonly Span<byte> _buffer = buffer;

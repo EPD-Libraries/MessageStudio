@@ -6,7 +6,7 @@ namespace MessageStudio.Formats.BinaryText.Writers;
 
 internal static class TextSectionWriter
 {
-    public static void Write(in InternalWriter writer, Encoding encoding, string?[] entries)
+    public static void Write(in InternalWriter writer, TextEncoding encoding, string?[] entries)
     {
         long sectionOffset = writer.Position;
 
@@ -15,7 +15,7 @@ internal static class TextSectionWriter
         int firstOffset = entries.Length * sizeof(uint) + sizeof(uint);
         long sectionEndPosition;
 
-        if (encoding == Encoding.UTF8) {
+        if (encoding == TextEncoding.UTF8) {
             sectionEndPosition = WriteUtf8(writer, entries, firstOffset, sectionOffset);
         }
         else {
@@ -66,10 +66,10 @@ internal static class TextSectionWriter
             if (value == '<' && (endTagIndex = text[i..].IndexOf('>')) > -1) {
                 ReadOnlySpan<char> tagStr = text[i..((i += endTagIndex) + 1)];
                 if (tagStr.Length > 1 && tagStr[1] == '[') {
-                    writer.WriteEndTag(tagStr, Encoding.Unicode);
+                    writer.WriteEndTag(tagStr, TextEncoding.Unicode);
                 }
                 else {
-                    writer.WriteTag(tagStr, Encoding.Unicode);
+                    writer.WriteTag(tagStr, TextEncoding.Unicode);
                 }
             }
             else {

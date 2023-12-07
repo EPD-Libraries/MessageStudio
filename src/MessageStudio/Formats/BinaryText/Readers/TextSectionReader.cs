@@ -11,7 +11,7 @@ public readonly ref struct TextSectionReader
 {
     private readonly Span<byte> _buffer;
     private readonly Span<int> _offsets;
-    private readonly Encoding _encoding;
+    private readonly TextEncoding _encoding;
     private readonly int _count;
 
     public readonly TextMarshal this[int index] {
@@ -27,7 +27,7 @@ public readonly ref struct TextSectionReader
         }
     }
 
-    public TextSectionReader(ref SpanReader reader, ref MsbtSectionHeader header, Encoding encoding)
+    public TextSectionReader(ref SpanReader reader, ref MsbtSectionHeader header, TextEncoding encoding)
     {
         _encoding = encoding;
 
@@ -36,7 +36,7 @@ public readonly ref struct TextSectionReader
         _offsets = reader.ReadSpan<int>(_count);
 
         if (reader.IsNotSystemByteOrder()) {
-            if (encoding == Encoding.Unicode) {
+            if (encoding == TextEncoding.Unicode) {
                 int eos = sectionOffset + header.SectionSize;
                 while (reader.Position < eos) {
                     reader.Reverse<ushort>();
@@ -47,10 +47,10 @@ public readonly ref struct TextSectionReader
         _buffer = reader.Read(header.SectionSize, sectionOffset);
     }
 
-    public readonly ref struct TextMarshal(Span<byte> buffer, Encoding encoding)
+    public readonly ref struct TextMarshal(Span<byte> buffer, TextEncoding encoding)
     {
         public readonly Span<byte> Buffer = buffer;
-        public readonly Encoding Encoding = encoding;
+        public readonly TextEncoding Encoding = encoding;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ReadOnlySpan<char> GetUnicode()
@@ -61,7 +61,7 @@ public readonly ref struct TextSectionReader
         public readonly string? GetManaged()
         {
             StringBuilder sb = new();
-            if (Encoding == Encoding.UTF8) {
+            if (Encoding == TextEncoding.UTF8) {
                 WriteUtf8(sb);
             }
             else {

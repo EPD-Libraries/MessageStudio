@@ -14,7 +14,7 @@ public readonly struct MsbtHeader
     public readonly Endian ByteOrderMark;
 
     [FieldOffset(0x0C)]
-    public readonly Encoding Encoding;
+    public readonly TextEncoding Encoding;
 
     [FieldOffset(0x0D)]
     public readonly byte Version;
@@ -26,7 +26,7 @@ public readonly struct MsbtHeader
     public readonly uint FileSize;
 
     public MsbtHeader() { }
-    public MsbtHeader(ulong magic, Endian byteOrderMark, Encoding encoding, byte version, ushort sectionCount, uint fileSize)
+    public MsbtHeader(ulong magic, Endian byteOrderMark, TextEncoding encoding, byte version, ushort sectionCount, uint fileSize)
     {
         Magic = magic;
         ByteOrderMark = byteOrderMark;
