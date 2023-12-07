@@ -65,7 +65,7 @@ public class Msbt : Dictionary<string, MsbtEntry>
 
     public void ToBinary(in Stream stream, Encoding encoding = Encoding.Unicode, Endian endianness = Endian.Little)
     {
-        using InternalWriter writer = new(stream, endianness);
+        InternalWriter writer = new(stream, endianness);
         ushort sectionCount = 0;
         bool isUsingATR1 = this.Any(x => !string.IsNullOrEmpty(x.Value.Attribute));
 
