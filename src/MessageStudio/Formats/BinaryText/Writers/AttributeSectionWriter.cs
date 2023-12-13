@@ -1,10 +1,11 @@
-﻿using MessageStudio.IO;
+﻿using MessageStudio.Common;
+using Revrs;
 
 namespace MessageStudio.Formats.BinaryText.Writers;
 
 internal static class AttributeSectionWriter
 {
-    public static void Write(in InternalWriter writer, TextEncoding encoding, string?[] attributes)
+    public static void Write(in RevrsWriter writer, TextEncoding encoding, string?[] attributes)
     {
         writer.Write(attributes.Length);
         writer.Write(sizeof(uint));
@@ -19,7 +20,7 @@ internal static class AttributeSectionWriter
         }
     }
 
-    private static void WriteUtf8(in InternalWriter writer, string?[] attributes, int firstOffset)
+    private static void WriteUtf8(in RevrsWriter writer, string?[] attributes, int firstOffset)
     {
         int offset = firstOffset;
         foreach (var attribute in attributes) {
@@ -29,14 +30,14 @@ internal static class AttributeSectionWriter
 
         foreach (var attribute in attributes) {
             if (attribute is not null) {
-                writer.WriteUtf8String(attribute);
+                writer.WriteStringUtf8(attribute);
             }
 
             writer.Write<byte>(0);
         }
     }
 
-    private static void WriteUtf16(InternalWriter writer, string?[] attributes, int firstOffset)
+    private static void WriteUtf16(RevrsWriter writer, string?[] attributes, int firstOffset)
     {
         int offset = firstOffset;
         foreach (var attribute in attributes) {
@@ -46,7 +47,7 @@ internal static class AttributeSectionWriter
 
         foreach (var attribute in attributes) {
             if (attribute is not null) {
-                writer.WriteUtf16String(attribute);
+                writer.WriteStringUtf16(attribute);
             }
 
             writer.Write<ushort>(0);

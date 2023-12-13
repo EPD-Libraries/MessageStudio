@@ -1,4 +1,5 @@
-﻿using MessageStudio.IO;
+﻿using MessageStudio.Common;
+using Revrs;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -11,7 +12,7 @@ public readonly struct MsbtHeader
     public readonly ulong Magic;
 
     [FieldOffset(0x08)]
-    public readonly Endian ByteOrderMark;
+    public readonly Endianness ByteOrderMark;
 
     [FieldOffset(0x0C)]
     public readonly TextEncoding Encoding;
@@ -26,7 +27,7 @@ public readonly struct MsbtHeader
     public readonly uint FileSize;
 
     public MsbtHeader() { }
-    public MsbtHeader(ulong magic, Endian byteOrderMark, TextEncoding encoding, byte version, ushort sectionCount, uint fileSize)
+    public MsbtHeader(ulong magic, Endianness byteOrderMark, TextEncoding encoding, byte version, ushort sectionCount, uint fileSize)
     {
         Magic = magic;
         ByteOrderMark = byteOrderMark;
@@ -36,7 +37,7 @@ public readonly struct MsbtHeader
         FileSize = fileSize;
     }
 
-    public class Reverser : ISpanReverser
+    public class Reverser : IStructReverser
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Reverse(in Span<byte> buffer)

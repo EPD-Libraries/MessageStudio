@@ -1,12 +1,13 @@
-﻿using MessageStudio.Formats.BinaryText.Extensions;
-using MessageStudio.IO;
+﻿using MessageStudio.Common;
+using MessageStudio.Formats.BinaryText.Extensions;
+using Revrs;
 using System.Runtime.CompilerServices;
 
 namespace MessageStudio.Formats.BinaryText.Writers;
 
 internal static class TextSectionWriter
 {
-    public static void Write(in InternalWriter writer, TextEncoding encoding, string?[] entries)
+    public static void Write(in RevrsWriter writer, TextEncoding encoding, string?[] entries)
     {
         long sectionOffset = writer.Position;
 
@@ -25,12 +26,12 @@ internal static class TextSectionWriter
         writer.Seek(sectionEndPosition);
     }
 
-    private static long WriteUtf8(in InternalWriter writer, string?[] entries, int firstOffset, long sectionOffset)
+    private static long WriteUtf8(in RevrsWriter writer, string?[] entries, int firstOffset, long sectionOffset)
     {
         throw new NotSupportedException("UTF8 encoded MSBT files are not supported");
     }
 
-    private static long WriteUtf16(in InternalWriter writer, string?[] entries, int firstOffset, long sectionOffset)
+    private static long WriteUtf16(in RevrsWriter writer, string?[] entries, int firstOffset, long sectionOffset)
     {
         long offsetsPosition = writer.Position;
         writer.Move(firstOffset - sizeof(uint));
@@ -58,7 +59,7 @@ internal static class TextSectionWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void WriteUtf16Entry(InternalWriter writer, ReadOnlySpan<char> text)
+    private static void WriteUtf16Entry(RevrsWriter writer, ReadOnlySpan<char> text)
     {
         for (int i = 0; i < text.Length; i++) {
             char value = text[i];

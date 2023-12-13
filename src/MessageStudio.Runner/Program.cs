@@ -43,14 +43,18 @@ BenchmarkRunner.Run([typeof(ImmutableMsbtBenchmarks), typeof(MsbtReadBenchmarks)
 //File.WriteAllText("D:\\bin\\Msbt\\test.yml", msbt.ReadOnly.ToYaml());
 
 using MessageStudio.Formats.BinaryText;
+using Revrs;
 using SarcLibrary;
 using System.Diagnostics;
 
 Stopwatch stopwatch = Stopwatch.StartNew();
 
 foreach (var file in Directory.GetFiles("D:\\bin\\Msbt\\Mals")) {
-    SarcFile sarc = SarcFile.FromBinary(file);
-	foreach ((var name, var buffer) in sarc) {
+    byte[] data = File.ReadAllBytes(file);
+    RevrsReader reader = new(data);
+    ImmutableSarc sarc = new(ref reader);
+
+    foreach ((var name, var buffer) in sarc) {
         Msbt msbt = Msbt.FromBinary(buffer);
         foreach ((var label, var entry) in msbt) {
             string text = entry.Text + entry.Attribute ?? string.Empty;

@@ -30,27 +30,27 @@ public class MsbtReadBenchmarks
     {
         _ = Msbt.FromBinary(_bufferBe);
     }
-    
+
     [Benchmark]
     public void ParseBELarge()
     {
         _ = Msbt.FromBinary(_bufferBeLarge);
     }
-    
+
     [Benchmark]
     public void ParseLE_MsbtLib()
     {
         MSBT msbt = new(_bufferLe);
         msbt.GetTexts();
     }
-    
+
     [Benchmark]
     public void ParseBE_MsbtLib()
     {
         MSBT msbt = new(_bufferBe);
         _ = msbt.GetTexts();
     }
-    
+
     [Benchmark]
     public void ParseBELarge_MsbtLib()
     {

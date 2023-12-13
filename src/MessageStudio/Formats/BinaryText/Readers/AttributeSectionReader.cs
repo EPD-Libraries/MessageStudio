@@ -1,8 +1,7 @@
-﻿using MessageStudio.Formats.BinaryText.Structures;
-using MessageStudio.IO;
+﻿using MessageStudio.Common;
+using MessageStudio.Formats.BinaryText.Structures;
+using Revrs;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.Marshalling;
 
 namespace MessageStudio.Formats.BinaryText.Readers;
 
@@ -14,7 +13,7 @@ public readonly ref struct AttributeSectionReader
     private readonly int _attributeSize;
     private readonly int _count;
 
-    public readonly AttributeMarshal this[int index] {
+    public readonly MsbtAttribute this[int index] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
             if (_count == 0 || _attributeSize == 0) {
@@ -31,7 +30,7 @@ public readonly ref struct AttributeSectionReader
         }
     }
 
-    public AttributeSectionReader(ref SpanReader reader, ref MsbtSectionHeader header, TextEncoding encoding)
+    public AttributeSectionReader(ref RevrsReader reader, ref MsbtSectionHeader header, TextEncoding encoding)
     {
         _encoding = encoding;
 
@@ -49,7 +48,7 @@ public readonly ref struct AttributeSectionReader
 
         _offsets = reader.ReadSpan<int>(_count);
 
-        if (reader.IsNotSystemByteOrder()) {
+        if (reader.Endianness.IsNotSystemEndianness()) {
             if (encoding == TextEncoding.Unicode) {
                 int eos = sectionOffset + header.SectionSize;
                 while (reader.Position < eos) {
@@ -59,35 +58,5 @@ public readonly ref struct AttributeSectionReader
         }
 
         _buffer = reader.Read(header.SectionSize, sectionOffset);
-    }
-
-    public readonly ref struct AttributeMarshal(Span<byte> buffer, TextEncoding encoding)
-    {
-        public readonly Span<byte> Buffer = buffer;
-        public readonly TextEncoding Encoding = encoding;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ReadOnlySpan<char> GetUnicode()
-        {
-            return MemoryMarshal.Cast<byte, char>(Buffer);
-        }
-
-        public unsafe readonly string? GetManaged()
-        {
-            if (Buffer.IsEmpty) {
-                return null;
-            }
-
-            if (Encoding == TextEncoding.UTF8) {
-                fixed (byte* ptr = Buffer) {
-                    return Utf8StringMarshaller.ConvertToManaged(ptr);
-                };
-            }
-            else {
-                fixed (ushort* ptr = MemoryMarshal.Cast<byte, ushort>(Buffer)) {
-                    return Utf16StringMarshaller.ConvertToManaged(ptr);
-                };
-            }
-        }
     }
 }

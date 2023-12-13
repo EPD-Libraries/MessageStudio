@@ -1,7 +1,8 @@
 ﻿using MessageStudio.Formats.BinaryText.Readers;
 using MessageStudio.Formats.BinaryText.Structures;
-using MessageStudio.IO;
+using Revrs;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.Marshalling;
 
 namespace MessageStudio.Formats.BinaryText;
 
@@ -12,14 +13,15 @@ public readonly ref struct ImmutableMsbt
     public readonly LabelSectionReader LabelSectionReader;
     public readonly TextSectionReader TextSectionReader;
 
-    public ImmutableMsbt(ref SpanReader reader)
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ImmutableMsbt(ref RevrsReader reader)
     {
         ref MsbtHeader header = ref reader.Read<MsbtHeader, MsbtHeader.Reverser>();
-        if (header.ByteOrderMark is Endian.Little) {
+        if (header.ByteOrderMark is Endianness.Little) {
             // Reverse the buffer back to LE
             // since it's initially read in BE
-            MsbtHeader.Reverser.Reverse(reader.Read(Unsafe.SizeOf<MsbtHeader>(), 0));
-            reader.Endianness = Endian.Little;
+            reader.Reverse<MsbtHeader, MsbtHeader.Reverser>(0);
+            reader.Endianness = Endianness.Little;
         }
 
         if (header.Magic != Msbt.MSBT_MAGIC) {
@@ -48,13 +50,5 @@ public readonly ref struct ImmutableMsbt
         }
 
         Header = header;
-
-        // Fix the BoM for consumers
-        unsafe {
-            fixed (Endian* ptr = &Header.ByteOrderMark) {
-                Span<byte> range = new(ptr, sizeof(Endian));
-                range.Reverse();
-            }
-        }
     }
 }

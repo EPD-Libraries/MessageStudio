@@ -1,4 +1,5 @@
-﻿using MessageStudio.IO;
+﻿using MessageStudio.Common;
+using Revrs;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -27,7 +28,7 @@ public static class TagExtension
         sb.Append("'/>");
     }
 
-    internal static void WriteTag(this InternalWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
+    internal static void WriteTag(this RevrsWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
     {
         ReadOnlySpan<char> group = text.ReadTagName();
         ReadOnlySpan<char> type = text.ReadProperty("Type");
@@ -48,7 +49,7 @@ public static class TagExtension
             writer.Write(ushort.Parse(type));
             writer.Write((ushort)data.Length);
 
-            if (writer.IsNotSystemByteOrder()) {
+            if (writer.Endianness.IsNotSystemEndianness()) {
                 ReadOnlySpan<ushort> utf16 = MemoryMarshal.Cast<byte, ushort>(data);
                 for (int i = 0; i < utf16.Length; i++) {
                     writer.Write(utf16[i]);
@@ -69,7 +70,7 @@ public static class TagExtension
         sb.Append("]>");
     }
 
-    internal static void WriteEndTag(this InternalWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
+    internal static void WriteEndTag(this RevrsWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
     {
         int typeIndex = text.IndexOf('|');
         int endIndex = text.IndexOf(']');

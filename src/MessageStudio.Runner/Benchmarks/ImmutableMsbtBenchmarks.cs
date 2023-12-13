@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using MessageStudio.Formats.BinaryText;
-using MessageStudio.IO;
+using Revrs;
 
 namespace MessageStudio.Runner.Benchmarks;
 
@@ -20,14 +20,14 @@ public class ImmutableMsbtBenchmarks
     [Benchmark]
     public void Read_LE()
     {
-        SpanReader reader = new(_bufferLE);
-        ImmutableMsbt msbt = new(ref reader);
+        RevrsReader reader = new(_bufferLE);
+        ImmutableMsbt _ = new(ref reader);
     }
 
     [Benchmark]
     public void Read_BE()
     {
-        SpanReader reader = new(_bufferBE);
-        ImmutableMsbt msbt = new(ref reader);
+        RevrsReader reader = new(_bufferBE);
+        ImmutableMsbt _ = new(ref reader);
     }
 }

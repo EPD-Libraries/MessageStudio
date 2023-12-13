@@ -1,4 +1,4 @@
-﻿using MessageStudio.IO;
+﻿using Revrs;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -20,7 +20,7 @@ public readonly struct MsbtSectionHeader
         SectionSize = sectionSize;
     }
 
-    internal static void WriteSection(in InternalWriter writer, ref ushort sectionCount, uint magic, Action writeSection)
+    internal static void WriteSection(in RevrsWriter writer, ref ushort sectionCount, uint magic, Action writeSection)
     {
         sectionCount++;
         int headerSize = Unsafe.SizeOf<MsbtSectionHeader>();
@@ -37,7 +37,7 @@ public readonly struct MsbtSectionHeader
         writer.Move(sectionSize);
     }
 
-    public class Reverser : ISpanReverser
+    public class Reverser : IStructReverser
     {
         public static void Reverse(in Span<byte> buffer)
         {

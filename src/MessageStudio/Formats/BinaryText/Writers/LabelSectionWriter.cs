@@ -1,10 +1,10 @@
-﻿using MessageStudio.IO;
+﻿using Revrs;
 
 namespace MessageStudio.Formats.BinaryText.Writers;
 
 internal static class LabelSectionWriter
 {
-    public static void Write(InternalWriter writer, ICollection<string> labels)
+    public static void Write(RevrsWriter writer, ICollection<string> labels)
     {
         writer.Write(1);
         writer.Write(labels.Count);
@@ -13,7 +13,7 @@ internal static class LabelSectionWriter
         int index = 0;
         foreach (var label in labels) {
             writer.Write((byte)label.Length);
-            writer.WriteUtf8String(label);
+            writer.WriteStringUtf8(label);
             writer.Write(index++);
         }
     }

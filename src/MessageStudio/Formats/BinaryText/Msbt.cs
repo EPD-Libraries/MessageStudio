@@ -1,7 +1,7 @@
-﻿using MessageStudio.Formats.BinaryText.Structures;
+﻿using MessageStudio.Common;
+using MessageStudio.Formats.BinaryText.Structures;
 using MessageStudio.Formats.BinaryText.Writers;
-using MessageStudio.IO;
-using System.Runtime.CompilerServices;
+using Revrs;
 using System.Text;
 
 namespace MessageStudio.Formats.BinaryText;
@@ -13,7 +13,7 @@ public class Msbt : Dictionary<string, MsbtEntry>
     internal const uint LBL1_MAGIC = 0x314C424C;
     internal const uint TXT2_MAGIC = 0x32545854;
 
-    public Endian Endian { get; set; } = Endian.Little;
+    public Endianness Endianness { get; set; } = Endianness.Little;
     public TextEncoding Encoding { get; set; } = TextEncoding.Unicode;
 
     /// <summary>
@@ -23,7 +23,7 @@ public class Msbt : Dictionary<string, MsbtEntry>
     /// <returns></returns>
     public static Msbt FromBinary(Span<byte> buffer)
     {
-        SpanReader reader = new(buffer);
+        RevrsReader reader = new(buffer);
         ImmutableMsbt msbt = new(ref reader);
         return FromImmutable(ref msbt);
     }
@@ -37,7 +37,7 @@ public class Msbt : Dictionary<string, MsbtEntry>
     {
         Msbt managed = new() {
             Encoding = msbt.Header.Encoding,
-            Endian = msbt.Header.ByteOrderMark
+            Endianness = msbt.Header.ByteOrderMark
         };
 
         foreach (var label in msbt.LabelSectionReader) {
@@ -64,13 +64,16 @@ public class Msbt : Dictionary<string, MsbtEntry>
         throw new NotImplementedException();
     }
 
-    public void ToBinary(in Stream stream, TextEncoding encoding = TextEncoding.Unicode, Endian endianness = Endian.Little)
+    public unsafe void ToBinary(in Stream stream, TextEncoding? encoding = null, Endianness? endianness = null)
     {
-        InternalWriter writer = new(stream, endianness);
+        endianness ??= Endianness;
+        encoding ??= Encoding;
+
+        RevrsWriter writer = new(stream, endianness.Value);
         ushort sectionCount = 0;
         bool isUsingATR1 = this.Any(x => !string.IsNullOrEmpty(x.Value.Attribute));
 
-        writer.Seek(Unsafe.SizeOf<MsbtHeader>());
+        writer.Seek(sizeof(MsbtHeader));
 
         // Sort by the attributes so that every
         // null/empty attribute is at the end
@@ -88,18 +91,18 @@ public class Msbt : Dictionary<string, MsbtEntry>
         if (isUsingATR1) {
             MsbtSectionHeader.WriteSection(writer, ref sectionCount, ATR1_MAGIC, () => {
                 AttributeSectionWriter.Write(
-                    writer, encoding, sorted.Select(x => x.Value.Attribute).ToArray());
+                    writer, encoding.Value, sorted.Select(x => x.Value.Attribute).ToArray());
             });
         }
 
         MsbtSectionHeader.WriteSection(writer, ref sectionCount, TXT2_MAGIC, () => {
-            TextSectionWriter.Write(writer, encoding, sorted.Values.Select(x => x.Text).ToArray());
+            TextSectionWriter.Write(writer, encoding.Value, sorted.Values.Select(x => x.Text).ToArray());
         });
 
         MsbtHeader header = new(
             magic: MSBT_MAGIC,
-            byteOrderMark: Endian.Big,
-            encoding: encoding,
+            byteOrderMark: Endianness.Big,
+            encoding: encoding.Value,
             version: 3,
             sectionCount: sectionCount,
             fileSize: (uint)writer.Position
