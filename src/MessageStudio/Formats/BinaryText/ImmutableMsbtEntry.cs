@@ -7,4 +7,11 @@ public ref struct ImmutableMsbtEntry(MsbtLabel label, MsbtAttribute attribute, M
     public MsbtLabel Label = label;
     public MsbtAttribute Attribute = attribute;
     public MsbtText Text = text;
+
+    public readonly void Deconstruct(out MsbtLabel label, out MsbtText text, out MsbtAttribute attribute)
+    {
+        label = Label;
+        text = Text;
+        attribute = Attribute;
+    }
 }

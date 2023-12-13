@@ -7,7 +7,7 @@ namespace MessageStudio.Formats.BinaryText.Readers;
 
 public readonly ref struct LabelSectionReader
 {
-    private readonly Span<byte> _buffer;
+    public readonly Span<byte> Data;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public LabelSectionReader(ref RevrsReader reader, ref MsbtSectionHeader header)
@@ -15,7 +15,7 @@ public readonly ref struct LabelSectionReader
         if (reader.Endianness.IsNotSystemEndianness()) {
             int sectionOffset = reader.Position;
             int groupCount = reader.Read<int>();
-            reader.ReverseSpan<LabelGroup, LabelGroup.Reverser>(groupCount);
+            reader.ReverseSpan<MsbtLabelGroup, MsbtLabelGroup.Reverser>(groupCount);
 
             int eos = sectionOffset + header.SectionSize;
             while (reader.Position < eos) {
@@ -28,41 +28,15 @@ public readonly ref struct LabelSectionReader
         }
 
         // Store the section buffer for later
-        _buffer = reader.Read(header.SectionSize);
+        Data = reader.Read(header.SectionSize);
     }
 
     public readonly MsbtLabel this[ReadOnlySpan<byte> key] {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get {
-            int index = _buffer.IndexOf(key);
-            byte size = _buffer[index - 1];
-            return new(size, _buffer[index..(index + size + sizeof(uint))]);
-        }
-    }
-
-    [StructLayout(LayoutKind.Explicit, Pack = 4, Size = 8)]
-    private struct LabelGroup
-    {
-        /// <summary>
-        /// The number of labels in the group
-        /// </summary>
-        [FieldOffset(0x0)]
-        public int LabelCount;
-
-        /// <summary>
-        /// Offset to the first label in the section
-        /// relative to the beginning of the section
-        /// </summary>
-        [FieldOffset(0x4)]
-        public int LabelOffset;
-
-        public class Reverser : IStructReverser
-        {
-            public static void Reverse(in Span<byte> buffer)
-            {
-                buffer[0x0..0x4].Reverse();
-                buffer[0x4..0x8].Reverse();
-            }
+            int index = Data.IndexOf(key);
+            byte size = Data[index - 1];
+            return new(size, Data[index..(index + size + sizeof(uint))]);
         }
     }
 
@@ -72,7 +46,7 @@ public readonly ref struct LabelSectionReader
     public ref struct Enumerator
     {
         private readonly Span<byte> _buffer;
-        private readonly Span<LabelGroup> _groups;
+        private readonly Span<MsbtLabelGroup> _groups;
         private readonly int _groupCount;
         private int _groupIndex;
         private int _labelIndex;
@@ -80,9 +54,9 @@ public readonly ref struct LabelSectionReader
 
         public Enumerator(LabelSectionReader labelSectionReader)
         {
-            RevrsReader reader = RevrsReader.Native(_buffer = labelSectionReader._buffer);
+            RevrsReader reader = RevrsReader.Native(_buffer = labelSectionReader.Data);
             _groupCount = reader.Read<int>();
-            _groups = reader.ReadSpan<LabelGroup, LabelGroup.Reverser>(_groupCount);
+            _groups = reader.ReadSpan<MsbtLabelGroup, MsbtLabelGroup.Reverser>(_groupCount);
             _position = reader.Position;
         }
 
