@@ -35,7 +35,7 @@ public readonly ref struct YamlParser(ReadOnlySpan<char> yaml, Msbt target)
                     if (!TryLookNext(i, out char next) || next is not ' ') {
                         isReadingText = false;
                         keyStartPos = i + 1;
-                        indentSize -= 2;
+                        indentSize = 2;
                         continue;
                     }
 
