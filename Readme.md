@@ -27,7 +27,7 @@ Msbt msbt = Msbt.FromYaml(yaml);
 /* ... */
 
 using MemoryStream ms = new();
-msbt.ToBinary(
+msbt.WriteBinary(
     ms,
     endianness: Endian.Little,
     encoding: Encoding.Unicode // Encoding.UTF8 is not supported!
