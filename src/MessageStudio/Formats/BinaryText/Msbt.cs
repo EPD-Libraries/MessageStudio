@@ -1,4 +1,5 @@
 ﻿using MessageStudio.Common;
+using MessageStudio.Formats.BinaryText.Parsers;
 using MessageStudio.Formats.BinaryText.Structures;
 using MessageStudio.Formats.BinaryText.Writers;
 using Revrs;
@@ -55,13 +56,17 @@ public class Msbt : Dictionary<string, MsbtEntry>
     }
 
     /// <summary>
-    /// Create a new <see cref="Msbt"/> object from a yaml document
+    /// Create a new <see cref="Msbt"/> object from yaml text
     /// </summary>
-    /// <param name="msbt"></param>
+    /// <param name="src"></param>
     /// <returns></returns>
     public static Msbt FromYaml(in ReadOnlySpan<char> src)
     {
-        throw new NotImplementedException();
+        Msbt result = [];
+        YamlParser parser = new(src, result);
+        parser.Parse();
+
+        return result;
     }
 
     public unsafe void ToBinary(in Stream stream, TextEncoding? encoding = null, Endianness? endianness = null)
@@ -117,7 +122,7 @@ public class Msbt : Dictionary<string, MsbtEntry>
         StringBuilder sb = new();
 
         if (this.Any(x => !string.IsNullOrEmpty(x.Value.Attribute))) {
-            WriteYamlWithAttributes(sb);
+            WriteYamlWithParameters(sb);
         }
         else {
             WriteYaml(sb);
@@ -135,14 +140,14 @@ public class Msbt : Dictionary<string, MsbtEntry>
         }
     }
 
-    private void WriteYamlWithAttributes(in StringBuilder sb)
+    private void WriteYamlWithParameters(in StringBuilder sb)
     {
         foreach ((var label, var entry) in this) {
             sb.Append(label);
-            sb.Append(":\n  Attribute: ");
+            sb.Append($":\n  {YamlParser.ATTRIBUTE_PARAM_NAME}: ");
             sb.AppendLine(string.IsNullOrEmpty(entry.Attribute) ? "~" : entry.Attribute);
-            sb.Append("  Text: |-\n    ");
-            sb.AppendLine(entry.Text?.Replace("\n", "\n  "));
+            sb.Append($"  {YamlParser.TEXT_PARAM_NAME}: |-\n    ");
+            sb.AppendLine(entry.Text?.Replace("\n", "\n    "));
         }
     }
 }
