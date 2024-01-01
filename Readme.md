@@ -16,12 +16,33 @@ byte[] data = File.ReadAllBytes("path/to/file.msbt");
 Msbt msbt = Msbt.FromBinary(data);
 ```
 
-> To Binary
+> From Yaml
+```cs
+string yaml = File.ReadAllText("path/to/file.msbt.yml");
+Msbt msbt = Msbt.FromYaml(yaml);
+```
+
+> Write Binary (to Stream)
 ```cs
 /* ... */
 
 using MemoryStream ms = new();
-msbt.ToBinary(ms,
+msbt.ToBinary(
+    ms,
+    endianness: Endian.Little,
+    encoding: Encoding.Unicode // Encoding.UTF8 is not supported!
+);
+```
+
+> To Binary (to Bytes)
+
+> **Note:** This method creates a copy of the written bytes.<br/>
+> Use `WriteBinary(in Stream, TextEncoding?, Endianness?)` if writing to a stream is possible.
+
+```cs
+/* ... */
+
+byte[] data = msbt.ToBinary(
     endianness: Endian.Little,
     encoding: Encoding.Unicode // Encoding.UTF8 is not supported!
 );
