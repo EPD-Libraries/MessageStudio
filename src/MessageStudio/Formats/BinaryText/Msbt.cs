@@ -69,7 +69,21 @@ public class Msbt : Dictionary<string, MsbtEntry>
         return result;
     }
 
-    public unsafe void ToBinary(in Stream stream, TextEncoding? encoding = null, Endianness? endianness = null)
+    /// <summary>
+    /// <b>Note:</b> This method creates a copy of the written bytes.<br/>
+    /// Use <see cref="WriteBinary(in Stream, TextEncoding?, Endianness?)"/> if writing to a stream is possible.
+    /// </summary>
+    /// <param name="encoding"></param>
+    /// <param name="endianness"></param>
+    /// <returns></returns>
+    public byte[] ToBinary(TextEncoding? encoding = null, Endianness? endianness = null)
+    {
+        using MemoryStream ms = new();
+        WriteBinary(ms, encoding, endianness);
+        return ms.ToArray();
+    }
+
+    public unsafe void WriteBinary(in Stream stream, TextEncoding? encoding = null, Endianness? endianness = null)
     {
         endianness ??= Endianness;
         encoding ??= Encoding;
