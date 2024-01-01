@@ -8,39 +8,15 @@ BenchmarkRunner.Run([typeof(ImmutableMsbtBenchmarks), typeof(MsbtReadBenchmarks)
 #else
 
 // using MessageStudio.Formats.BinaryText;
-// using MessageStudio.Formats.BinaryText.Structures;
-// using MessageStudio.Formats.BinaryText.Structures.Sections;
-// using SarcLibrary;
-// using System.Collections.Generic;
-
-//byte[] buffer = File.ReadAllBytes(args[0]);
-//Msbt msbt = new(buffer);
-
-//Console.WriteLine($"Magic: {MsbtHeader.Magic}");
-//Console.WriteLine($"Byte Order Mark: {msbt.ReadOnly.Header.ByteOrderMark}");
-//Console.WriteLine($"Encoding: {msbt.ReadOnly.Header.Encoding}");
-//Console.WriteLine($"Version: {msbt.ReadOnly.Header.Version}");
-//Console.WriteLine($"Section Count: {msbt.ReadOnly.Header.SectionCount}");
-//Console.WriteLine($"File Size: {msbt.ReadOnly.Header.FileSize}");
-
-//Console.WriteLine("\nLabels:");
-//foreach (MsbtLabel label in msbt.ReadOnly.LabelSection) {
-//    Console.WriteLine($"{label.Index}: {label.Value}");
-//}
-
-//if (msbt.ReadOnly.AttributeSection is not null) {
-//    Console.WriteLine("\nAttributes:");
-//    foreach (MsbtAttribute atr in msbt.ReadOnly.AttributeSection) {
-//        Console.WriteLine($"{atr.Index}: {atr.Value}");
-//    }
-//}
-
-//Console.WriteLine("\nText:");
-//foreach (MsbtText txt in msbt.ReadOnly.TextSection) {
-//    Console.WriteLine($"{txt.Index}: {txt.Value}");
-//}
-
-//File.WriteAllText("D:\\bin\\Msbt\\test.yml", msbt.ReadOnly.ToYaml());
+// 
+// byte[] buffer = File.ReadAllBytes(args[0]);
+// 
+// Msbt msbt = Msbt.FromBinary(buffer);
+// string yaml = msbt.ToYaml();
+// 
+// Msbt yamlMsbt = Msbt.FromYaml(yaml);
+// Console.WriteLine(yaml + "\n\n");
+// Console.WriteLine(yaml == yamlMsbt.ToYaml());
 
 using MessageStudio.Formats.BinaryText;
 using Revrs;
@@ -63,14 +39,27 @@ foreach (var file in Directory.GetFiles("D:\\bin\\Msbt\\Mals")) {
             }
         }
 
-        string path = Path.Combine(
+        string yamlPath = Path.Combine(
             "D:\\bin\\Msbt\\Mals-Yaml",
             Path.GetFileName(file),
             Path.GetDirectoryName(name) ?? string.Empty,
             Path.GetFileNameWithoutExtension(name) + ".yml");
 
-        Directory.CreateDirectory(Path.GetDirectoryName(path) ?? string.Empty);
-        File.WriteAllText(path, msbt.ToYaml());
+        string yaml = msbt.ToYaml();
+        Directory.CreateDirectory(Path.GetDirectoryName(yamlPath) ?? string.Empty);
+        File.WriteAllText(yamlPath, yaml);
+
+        Msbt yamlMsbt = Msbt.FromYaml(yaml);
+
+        string binaryPath = Path.Combine(
+            "D:\\bin\\Msbt\\Mals-Yaml",
+            Path.GetFileName(file),
+            Path.GetDirectoryName(name) ?? string.Empty,
+            Path.GetFileNameWithoutExtension(name) + ".msbt");
+
+        Directory.CreateDirectory(Path.GetDirectoryName(binaryPath) ?? string.Empty);
+        using FileStream fs = File.Create(binaryPath);
+        yamlMsbt.ToBinary(fs, msbt.Encoding, msbt.Endianness);
     }
 }
 
