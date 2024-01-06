@@ -41,7 +41,7 @@ public readonly ref struct ImmutableMsbt
         if (header.ByteOrderMark is Endianness.Little) {
             // Reverse the buffer back to LE
             // since it's initially read in BE
-            reader.Reverse<MsbtHeader, MsbtHeader.Reverser>(0);
+            reader.Reverse<MsbtHeader, MsbtHeader.DataReverser>(0);
             reader.Endianness = Endianness.Little;
         }
 

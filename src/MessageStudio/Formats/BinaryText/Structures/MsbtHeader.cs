@@ -47,4 +47,18 @@ public readonly struct MsbtHeader
             buffer[0x12..0x16].Reverse();
         }
     }
+
+    /// <summary>
+    /// Reverser for only the data,
+    /// the BoM is not reversed
+    /// </summary>
+    public class DataReverser : IStructReverser
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Reverse(in Span<byte> buffer)
+        {
+            buffer[0x0E..0x10].Reverse();
+            buffer[0x12..0x16].Reverse();
+        }
+    }
 }
