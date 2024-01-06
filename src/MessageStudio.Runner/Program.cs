@@ -59,7 +59,7 @@ foreach (var file in Directory.GetFiles("D:\\bin\\Msbt\\Mals")) {
 
         Directory.CreateDirectory(Path.GetDirectoryName(binaryPath) ?? string.Empty);
         using FileStream fs = File.Create(binaryPath);
-        yamlMsbt.ToBinary(fs, msbt.Encoding, msbt.Endianness);
+        yamlMsbt.WriteBinary(fs, msbt.Encoding, msbt.Endianness);
     }
 }
 
