@@ -118,6 +118,8 @@ public class Msbt : Dictionary<string, MsbtEntry>
             TextSectionWriter.Write(writer, encoding.Value, sorted.Values.Select(x => x.Text).ToArray());
         });
 
+        stream.SetLength(writer.Position);
+
         MsbtHeader header = new(
             magic: MSBT_MAGIC,
             byteOrderMark: Endianness.Big,

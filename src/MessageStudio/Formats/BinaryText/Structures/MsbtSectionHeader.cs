@@ -28,13 +28,13 @@ public readonly struct MsbtSectionHeader
         long sectionOffset = writer.Position;
 
         writeSection();
-        writer.Align(0x10);
-
         long sectionSize = writer.Position - sectionOffset;
+
         MsbtSectionHeader header = new(magic, (int)sectionSize);
         writer.Seek(sectionOffset - headerSize);
         writer.Write<MsbtSectionHeader, Reverser>(header);
         writer.Move(sectionSize);
+        writer.Align(0x10);
     }
 
     public class Reverser : IStructReverser
