@@ -41,19 +41,19 @@ public class MsbtWriteBenchmarks
     [Benchmark]
     public void WriteLE()
     {
-        _newMsbtLe.ToBinary(_newMsbtLeMs);
+        _newMsbtLe.WriteBinary(_newMsbtLeMs);
     }
 
     [Benchmark]
     public void WriteBE()
     {
-        _newMsbtBe.ToBinary(_newMsbtBeMs);
+        _newMsbtBe.WriteBinary(_newMsbtBeMs);
     }
 
     [Benchmark]
     public void WriteBELarge()
     {
-        _newMsbtBeLarge.ToBinary(_newMsbtBeLargeMs);
+        _newMsbtBeLarge.WriteBinary(_newMsbtBeLargeMs);
     }
 
     [Benchmark]
