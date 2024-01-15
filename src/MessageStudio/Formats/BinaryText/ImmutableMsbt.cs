@@ -38,11 +38,11 @@ public readonly ref struct ImmutableMsbt
     public ImmutableMsbt(ref RevrsReader reader)
     {
         ref MsbtHeader header = ref reader.Read<MsbtHeader, MsbtHeader.Reverser>();
-        if (header.ByteOrderMark is Endianness.Little) {
+        if (header.ByteOrderMark != reader.Endianness) {
             // Reverse the buffer back to LE
             // since it's initially read in BE
-            reader.Reverse<MsbtHeader, MsbtHeader.DataReverser>(0);
-            reader.Endianness = Endianness.Little;
+            reader.Endianness = header.ByteOrderMark;
+            reader.Reverse<MsbtHeader, MsbtHeader.Reverser>(0);
         }
 
         if (header.Magic != Msbt.MSBT_MAGIC) {
@@ -71,6 +71,7 @@ public readonly ref struct ImmutableMsbt
         }
 
         Header = header;
+        Header.ByteOrderMark = reader.Endianness;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

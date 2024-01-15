@@ -6,13 +6,13 @@ using System.Runtime.InteropServices;
 namespace MessageStudio.Formats.BinaryText.Structures;
 
 [StructLayout(LayoutKind.Explicit, Size = 32)]
-public readonly struct MsbtHeader
+public struct MsbtHeader
 {
     [FieldOffset(0x00)]
     public readonly ulong Magic;
 
     [FieldOffset(0x08)]
-    public readonly Endianness ByteOrderMark;
+    public Endianness ByteOrderMark;
 
     [FieldOffset(0x0C)]
     public readonly TextEncoding Encoding;
@@ -43,20 +43,6 @@ public readonly struct MsbtHeader
         public static void Reverse(in Span<byte> buffer)
         {
             buffer[0x08..0x0A].Reverse();
-            buffer[0x0E..0x10].Reverse();
-            buffer[0x12..0x16].Reverse();
-        }
-    }
-
-    /// <summary>
-    /// Reverser for only the data,
-    /// the BoM is not reversed
-    /// </summary>
-    public class DataReverser : IStructReverser
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Reverse(in Span<byte> buffer)
-        {
             buffer[0x0E..0x10].Reverse();
             buffer[0x12..0x16].Reverse();
         }
