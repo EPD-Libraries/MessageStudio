@@ -12,6 +12,7 @@ env:
   description: |-
     Modern implementation of (some) EPD MessageStudio file formats written in managed C#
   readme: ./Readme.md
+  icon: ./Icon.png
   repo: https://github.com/EPD-Libraries/MessageStudio
   spdx: AGPL-3.0-or-later
   tags: msbt;zeldamods;message-studio;totk;botw
@@ -57,6 +58,7 @@ jobs:
           -p:PackageLicenseExpression="${{ env.spdx }}"                          \
           -p:PackageProjectUrl="${{ env.repo }}"                                 \
           -p:PackageReadmeFile="${{ env.readme }}"                               \
+          -p:PackageIcon="${{ env.icon }}"                                       \
           -p:PackageTags='"${{ env.tags }}"'                                     \
           -p:PackageVersion="${{ steps.version.outputs.version-without-v }}"     \
           -p:RepositoryUrl="${{ env.repo }}"                                     \
