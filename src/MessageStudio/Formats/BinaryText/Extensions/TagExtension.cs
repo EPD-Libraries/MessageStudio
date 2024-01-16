@@ -1,111 +1,99 @@
 ﻿using MessageStudio.Common;
+using MessageStudio.Formats.BinaryText.Components;
 using Revrs;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace MessageStudio.Formats.BinaryText.Extensions;
 
 public static class TagExtension
 {
-    // TODO: Tag reading/writing
-    // 
-    // Sometime in the future this should support loading
-    // a schema and writing tags according to the schema.
+    public static ITagResolver Resolver { get; private set; } = new DefaultTagResolver();
 
-    internal static void WriteTag(this StringBuilder sb, ushort group, ushort tag, Span<byte> data)
+    /// <summary>
+    /// Register the provided <paramref name="resolver"/> to be used when resolving tags.
+    /// </summary>
+    /// <param name="resolver"></param>
+    public static void Register(this ITagResolver resolver)
+    {
+        Resolver = resolver;
+    }
+
+    internal static void WriteTag(this StringBuilder sb, ushort group, ushort type, Span<byte> data)
     {
         sb.Append('<');
-        sb.Append(group);
-        sb.Append(" Type='");
-        sb.Append(tag);
 
-        if (!data.IsEmpty) {
-            sb.Append("' Data='0x");
-            sb.Append(Convert.ToHexString(data));
+        if (Resolver.GetName(group, type) is string name) {
+            sb.Append(name);
+            Resolver.WriteText(sb, name, data);
+        }
+        else {
+            name = DefaultTagResolver.Shared.GetName(group, type);
+            sb.Append(name);
+            DefaultTagResolver.Shared.WriteText(sb, name, data);
         }
 
-        sb.Append("'/>");
+        sb.Append("/>");
     }
 
     internal static void WriteTag(this RevrsWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
     {
-        ReadOnlySpan<char> group = text.ReadTagName();
-        ReadOnlySpan<char> type = text.ReadProperty("Type");
-        ReadOnlySpan<char> hexData = text.ReadProperty("Data");
-        ReadOnlySpan<byte> data = hexData.IsEmpty
-            ? [] : Convert.FromHexString(hexData[2..]);
+        ReadOnlySpan<char> name = text.ReadTagName(out int paramsStartIndex);
+        TagParams @params = new(text[paramsStartIndex..]);
+
+        (ushort group, ushort type) = Resolver.GetGroupAndType(name)
+            ?? DefaultTagResolver.Shared.GetGroupAndType(name)!.Value;
 
         if (encoding == TextEncoding.UTF8) {
             writer.Write<byte>(0xE);
-            writer.Write(byte.Parse(group));
-            writer.Write(byte.Parse(type));
-            writer.Write((byte)data.Length);
-            writer.Write(data);
+            writer.Write((byte)group);
+            writer.Write((byte)type);
+            if (Resolver.WriteBinaryUtf8(writer, name, @params) == false) {
+                DefaultTagResolver.Shared.WriteBinaryUtf8(writer, name, @params);
+            }
         }
         else {
             writer.Write<ushort>(0xE);
-            writer.Write(ushort.Parse(group));
-            writer.Write(ushort.Parse(type));
-            writer.Write((ushort)data.Length);
-
-            if (writer.Endianness.IsNotSystemEndianness()) {
-                ReadOnlySpan<ushort> utf16 = MemoryMarshal.Cast<byte, ushort>(data);
-                for (int i = 0; i < utf16.Length; i++) {
-                    writer.Write(utf16[i]);
-                }
-            }
-            else {
-                writer.Write(data);
+            writer.Write(group);
+            writer.Write(type);
+            if (Resolver.WriteBinaryUtf16(writer, name, @params) == false) {
+                DefaultTagResolver.Shared.WriteBinaryUtf16(writer, name, @params);
             }
         }
     }
 
-    internal static void WriteEndTag(this StringBuilder sb, ushort group, ushort tag)
+    internal static void WriteEndTag(this StringBuilder sb, ushort group, ushort type)
     {
         sb.Append("<[");
-        sb.Append(group);
-        sb.Append('|');
-        sb.Append(tag);
+        sb.Append(Resolver.GetName(group, type) ?? DefaultTagResolver.Shared.GetName(group, type));
         sb.Append("]>");
     }
 
     internal static void WriteEndTag(this RevrsWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
     {
-        int typeIndex = text.IndexOf('|');
-        int endIndex = text.IndexOf(']');
-
-        ReadOnlySpan<char> group = text[2..typeIndex];
-        ReadOnlySpan<char> type = text[++typeIndex..endIndex];
+        (ushort group, ushort type) = Resolver.GetGroupAndType(text[2..^2])
+            ?? DefaultTagResolver.Shared.GetGroupAndType(text[2..^2])!.Value;
 
         if (encoding == TextEncoding.UTF8) {
             writer.Write<byte>(0xF);
-            writer.Write(byte.Parse(group));
-            writer.Write(byte.Parse(type));
+            writer.Write((byte)group);
+            writer.Write((byte)type);
         }
         else {
             writer.Write<ushort>(0xF);
-            writer.Write(ushort.Parse(group));
-            writer.Write(ushort.Parse(type));
+            writer.Write(group);
+            writer.Write(type);
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static ReadOnlySpan<char> ReadTagName(in this ReadOnlySpan<char> text)
+    private static ReadOnlySpan<char> ReadTagName(in this ReadOnlySpan<char> text, out int paramsStartIndex)
     {
-        return text[1..text.IndexOf(' ')];
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static ReadOnlySpan<char> ReadProperty(in this ReadOnlySpan<char> text, in ReadOnlySpan<char> name)
-    {
-        int startIndex = text.IndexOf(name);
-        if (startIndex <= 0) {
-            return [];
+        paramsStartIndex = text.IndexOf(' ');
+        if (paramsStartIndex == -1) {
+            paramsStartIndex = text.IndexOf('/');
         }
 
-        startIndex += name.Length + 2;
-        int endIndex = startIndex + text[startIndex..].IndexOf('\'');
-        return text[startIndex..endIndex];
+        return text[1..paramsStartIndex++];
     }
 }
