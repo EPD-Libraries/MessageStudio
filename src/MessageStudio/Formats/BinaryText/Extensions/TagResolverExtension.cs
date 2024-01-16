@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MessageStudio.Formats.BinaryText.Extensions;
 
-public static class TagExtension
+public static class TagResolverExtension
 {
     public static ITagResolver Resolver { get; private set; } = new DefaultTagResolver();
 
