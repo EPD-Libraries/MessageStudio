@@ -20,12 +20,12 @@ public class DefaultTagResolver : ITagResolver
         return (ushort.Parse(name[..split]), ushort.Parse(name[++split..]));
     }
 
-    public bool WriteBinaryUtf8(RevrsWriter writer, ReadOnlySpan<char> name, in TagParams @params)
+    public bool WriteBinaryUtf8(RevrsWriter writer, ushort group, ushort type, in TagParams @params)
     {
         throw new NotImplementedException();
     }
 
-    public bool WriteBinaryUtf16(RevrsWriter writer, ReadOnlySpan<char> name, in TagParams @params)
+    public bool WriteBinaryUtf16(RevrsWriter writer, ushort group, ushort type, in TagParams @params)
     {
         ReadOnlySpan<char> data = @params["Data"];
         byte[] buffer = data.IsEmpty ? [] : Convert.FromHexString(data[2..]);
@@ -39,7 +39,7 @@ public class DefaultTagResolver : ITagResolver
         return true;
     }
 
-    public void WriteText(StringBuilder sb, ReadOnlySpan<char> name, Span<byte> data)
+    public bool WriteText(StringBuilder sb, ushort group, ushort type, Span<byte> data)
     {
         if (!data.IsEmpty) {
             sb.OpenParam("Data");
@@ -47,5 +47,7 @@ public class DefaultTagResolver : ITagResolver
             sb.Append(Convert.ToHexString(data));
             sb.CloseParam();
         }
+
+        return true;
     }
 }

@@ -11,6 +11,6 @@ public class TagResolver
 
     public static void Load(ITagResolver resolver)
     {
-        TagResolverExtension.Register(resolver);
+        TagResolverExtensions.Register(resolver);
     }
 }

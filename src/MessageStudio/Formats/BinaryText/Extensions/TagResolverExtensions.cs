@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MessageStudio.Formats.BinaryText.Extensions;
 
-public static class TagResolverExtension
+public static class TagResolverExtensions
 {
     public static ITagResolver Resolver { get; private set; } = new DefaultTagResolver();
 
@@ -25,12 +25,12 @@ public static class TagResolverExtension
 
         if (Resolver.GetName(group, type) is string name) {
             sb.Append(name);
-            Resolver.WriteText(sb, name, data);
+            Resolver.WriteText(sb, group, type, data);
         }
         else {
             name = DefaultTagResolver.Shared.GetName(group, type);
             sb.Append(name);
-            DefaultTagResolver.Shared.WriteText(sb, name, data);
+            DefaultTagResolver.Shared.WriteText(sb, group, type, data);
         }
 
         sb.Append("/>");
@@ -48,16 +48,16 @@ public static class TagResolverExtension
             writer.Write<byte>(0xE);
             writer.Write((byte)group);
             writer.Write((byte)type);
-            if (Resolver.WriteBinaryUtf8(writer, name, @params) == false) {
-                DefaultTagResolver.Shared.WriteBinaryUtf8(writer, name, @params);
+            if (Resolver.WriteBinaryUtf8(writer, group, type, @params) == false) {
+                DefaultTagResolver.Shared.WriteBinaryUtf8(writer, group, type, @params);
             }
         }
         else {
             writer.Write<ushort>(0xE);
             writer.Write(group);
             writer.Write(type);
-            if (Resolver.WriteBinaryUtf16(writer, name, @params) == false) {
-                DefaultTagResolver.Shared.WriteBinaryUtf16(writer, name, @params);
+            if (Resolver.WriteBinaryUtf16(writer, group, type, @params) == false) {
+                DefaultTagResolver.Shared.WriteBinaryUtf16(writer, group, type, @params);
             }
         }
     }

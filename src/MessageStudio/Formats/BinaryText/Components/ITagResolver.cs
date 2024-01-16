@@ -23,11 +23,11 @@ public interface ITagResolver
     /// </returns>
     public (ushort, ushort)? GetGroupAndType(ReadOnlySpan<char> name);
 
-    /// <inheritdoc cref="WriteText(StringBuilder, ReadOnlySpan{char}, Span{byte})"/>
-    public bool WriteBinaryUtf16(RevrsWriter writer, ReadOnlySpan<char> name, in TagParams @params);
+    /// <inheritdoc cref="WriteText(StringBuilder, ushort, ushort, Span{byte})"/>
+    public bool WriteBinaryUtf16(RevrsWriter writer, ushort group, ushort type, in TagParams @params);
 
-    /// <inheritdoc cref="WriteText(StringBuilder, ReadOnlySpan{char}, Span{byte})"/>
-    public bool WriteBinaryUtf8(RevrsWriter writer, ReadOnlySpan<char> name, in TagParams @params);
+    /// <inheritdoc cref="WriteText(StringBuilder, ushort, ushort, Span{byte})"/>
+    public bool WriteBinaryUtf8(RevrsWriter writer, ushort group, ushort type, in TagParams @params);
 
     /// <summary>
     /// Returns <see langword="true"/> if the tag was recognized
@@ -36,5 +36,5 @@ public interface ITagResolver
     /// <param name="writer"></param>
     /// <param name="params"></param>
     /// <returns></returns>
-    public void WriteText(StringBuilder sb, ReadOnlySpan<char> name, Span<byte> data);
+    public bool WriteText(StringBuilder sb, ushort group, ushort type, Span<byte> data);
 }
