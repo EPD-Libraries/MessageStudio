@@ -3,6 +3,7 @@ using MessageStudio.Formats.BinaryText.Structures;
 using Revrs;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.Marshalling;
+using System.Text;
 
 namespace MessageStudio.Formats.BinaryText;
 
@@ -63,8 +64,9 @@ public readonly ref struct ImmutableMsbt
             else {
                 // TODO: convert the Magic to
                 // a string before throwing
-                throw new NotSupportedException(
-                    $"Unsupported MSBT section {sectionHeader.Magic}");
+                throw new NotSupportedException($"""
+                    Unsupported MSBT section '{Encoding.UTF8.GetString(BitConverter.GetBytes(sectionHeader.Magic))}'
+                    """);
             }
 
             reader.Align(0x10);
