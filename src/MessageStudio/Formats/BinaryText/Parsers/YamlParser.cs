@@ -71,7 +71,9 @@ public readonly ref struct YamlParser(ReadOnlySpan<char> yaml, Msbt target)
             }
             else if (@char is '|' && TryLookNext(i, out char next) && next is '-') {
                 isReadingText = true;
-                i += 2 + indentSize;
+                i++;
+                SkipNewlines(ref i);
+                i += indentSize;
             }
             else if (@char is '\n') {
                 keyStartPos = (i += indentSize) + 1;
@@ -95,6 +97,13 @@ public readonly ref struct YamlParser(ReadOnlySpan<char> yaml, Msbt target)
     private void SkipWhitespace(ref int index)
     {
         while (TryLookNext(index, out char next) && next is ' ') {
+            index++;
+        }
+    }
+
+    private void SkipNewlines(ref int index)
+    {
+        while (TryLookNext(index, out char next) && next is '\r' or '\n') {
             index++;
         }
     }
