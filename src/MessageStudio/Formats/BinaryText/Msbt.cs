@@ -1,4 +1,5 @@
 ﻿using MessageStudio.Common;
+using MessageStudio.Formats.BinaryText.Exceptions;
 using MessageStudio.Formats.BinaryText.Parsers;
 using MessageStudio.Formats.BinaryText.Structures;
 using MessageStudio.Formats.BinaryText.Writers;
@@ -22,11 +23,11 @@ public class Msbt : Dictionary<string, MsbtEntry>
     /// </summary>
     /// <param name="buffer"></param>
     /// <returns></returns>
-    public static Msbt FromBinary(Span<byte> buffer)
+    public static Msbt FromBinary(Span<byte> buffer, MsbtOptions? options = null)
     {
         RevrsReader reader = new(buffer);
         ImmutableMsbt msbt = new(ref reader);
-        return FromImmutable(ref msbt);
+        return FromImmutable(ref msbt, options);
     }
 
     /// <summary>
@@ -34,8 +35,10 @@ public class Msbt : Dictionary<string, MsbtEntry>
     /// </summary>
     /// <param name="msbt"></param>
     /// <returns></returns>
-    public static Msbt FromImmutable(ref ImmutableMsbt msbt)
+    public static Msbt FromImmutable(ref ImmutableMsbt msbt, MsbtOptions? options = null)
     {
+        options ??= MsbtOptions.Default;
+
         Msbt managed = new() {
             Encoding = msbt.Header.Encoding,
             Endianness = msbt.Header.ByteOrderMark
@@ -45,10 +48,28 @@ public class Msbt : Dictionary<string, MsbtEntry>
             int index = label.Index;
             string? key = label.GetManaged();
             if (key is not null) {
-                managed.Add(key, new MsbtEntry {
-                    Attribute = msbt.AttributeSectionReader[index].GetManaged(),
-                    Text = msbt.TextSectionReader[index].GetManaged()
-                });
+                switch (options.DuplicateKeyMode) {
+                    case MsbtDuplicateKeyMode.UseLastOccurrence: {
+                        managed[key] = new MsbtEntry {
+                            Attribute = msbt.AttributeSectionReader[index].GetManaged(),
+                            Text = msbt.TextSectionReader[index].GetManaged()
+                        };
+
+                        break;
+                    }
+                    default: {
+                        bool keySuccessfullyAdded = managed.TryAdd(key, new MsbtEntry {
+                            Attribute = msbt.AttributeSectionReader[index].GetManaged(),
+                            Text = msbt.TextSectionReader[index].GetManaged()
+                        });
+
+                        if (!keySuccessfullyAdded && options.DuplicateKeyMode is MsbtDuplicateKeyMode.ThrowException) {
+                            throw new MsbtDuplicateKeyException(key);
+                        }
+
+                        break;
+                    }
+                }
             }
         }
 
