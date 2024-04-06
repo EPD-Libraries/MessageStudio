@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Revrs" Version="1.0.1" />
+    <PackageReference Include="Revrs" Version="1.0.5" />
   </ItemGroup>
 
 </Project>

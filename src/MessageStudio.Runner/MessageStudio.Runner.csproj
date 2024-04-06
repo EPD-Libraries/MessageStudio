@@ -9,9 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.11" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.12" />
     <PackageReference Include="MsbtLib" Version="0.9.3" />
-    <PackageReference Include="SarcLibrary" Version="3.0.0" />
+    <PackageReference Include="SarcLibrary" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup>
