@@ -20,7 +20,7 @@ public readonly struct MsbtSectionHeader
         SectionSize = sectionSize;
     }
 
-    internal static void WriteSection(in RevrsWriter writer, ref ushort sectionCount, uint magic, Action writeSection)
+    internal static void WriteSection(ref RevrsWriter writer, ref ushort sectionCount, uint magic, Action writeSection)
     {
         sectionCount++;
         int headerSize = Unsafe.SizeOf<MsbtSectionHeader>();

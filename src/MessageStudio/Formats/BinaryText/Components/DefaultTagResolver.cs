@@ -20,12 +20,12 @@ public class DefaultTagResolver : ITagResolver
         return (ushort.Parse(name[..split]), ushort.Parse(name[++split..]));
     }
 
-    public bool WriteBinaryUtf8(RevrsWriter writer, ushort group, ushort type, in TagParams @params)
+    public bool WriteBinaryUtf8(ref RevrsWriter writer, ushort group, ushort type, in TagParams @params)
     {
         throw new NotImplementedException();
     }
 
-    public bool WriteBinaryUtf16(RevrsWriter writer, ushort group, ushort type, in TagParams @params)
+    public bool WriteBinaryUtf16(ref RevrsWriter writer, ushort group, ushort type, in TagParams @params)
     {
         ReadOnlySpan<char> data = @params["Data"];
         byte[] buffer = data.IsEmpty ? [] : Convert.FromHexString(data[2..]);

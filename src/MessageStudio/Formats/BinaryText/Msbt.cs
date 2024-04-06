@@ -124,19 +124,19 @@ public class Msbt : Dictionary<string, MsbtEntry>
                 .ToDictionary(x => x.Key, x => x.Value)
             : this;
 
-        MsbtSectionHeader.WriteSection(writer, ref sectionCount, LBL1_MAGIC, () => {
-            LabelSectionWriter.Write(writer, sorted.Keys);
+        MsbtSectionHeader.WriteSection(ref writer, ref sectionCount, LBL1_MAGIC, () => {
+            LabelSectionWriter.Write(ref writer, sorted.Keys);
         });
 
         if (isUsingATR1) {
-            MsbtSectionHeader.WriteSection(writer, ref sectionCount, ATR1_MAGIC, () => {
+            MsbtSectionHeader.WriteSection(ref writer, ref sectionCount, ATR1_MAGIC, () => {
                 AttributeSectionWriter.Write(
-                    writer, encoding.Value, sorted.Select(x => x.Value.Attribute).ToArray());
+                    ref writer, encoding.Value, sorted.Select(x => x.Value.Attribute).ToArray());
             });
         }
 
-        MsbtSectionHeader.WriteSection(writer, ref sectionCount, TXT2_MAGIC, () => {
-            TextSectionWriter.Write(writer, encoding.Value, sorted.Values.Select(x => x.Text).ToArray());
+        MsbtSectionHeader.WriteSection(ref writer, ref sectionCount, TXT2_MAGIC, () => {
+            TextSectionWriter.Write(ref writer, encoding.Value, sorted.Values.Select(x => x.Text).ToArray());
         });
 
         stream.SetLength(writer.Position);

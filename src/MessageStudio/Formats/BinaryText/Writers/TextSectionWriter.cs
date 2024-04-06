@@ -7,7 +7,7 @@ namespace MessageStudio.Formats.BinaryText.Writers;
 
 internal static class TextSectionWriter
 {
-    public static void Write(in RevrsWriter writer, TextEncoding encoding, string?[] entries)
+    public static void Write(ref RevrsWriter writer, TextEncoding encoding, string?[] entries)
     {
         long sectionOffset = writer.Position;
 
@@ -17,21 +17,21 @@ internal static class TextSectionWriter
         long sectionEndPosition;
 
         if (encoding == TextEncoding.UTF8) {
-            sectionEndPosition = WriteUtf8(writer, entries, firstOffset, sectionOffset);
+            sectionEndPosition = WriteUtf8(ref writer, entries, firstOffset, sectionOffset);
         }
         else {
-            sectionEndPosition = WriteUtf16(writer, entries, firstOffset, sectionOffset);
+            sectionEndPosition = WriteUtf16(ref writer, entries, firstOffset, sectionOffset);
         }
 
         writer.Seek(sectionEndPosition);
     }
 
-    private static long WriteUtf8(in RevrsWriter writer, string?[] entries, int firstOffset, long sectionOffset)
+    private static long WriteUtf8(ref RevrsWriter writer, string?[] entries, int firstOffset, long sectionOffset)
     {
         throw new NotSupportedException("UTF8 encoded MSBT files are not supported");
     }
 
-    private static long WriteUtf16(in RevrsWriter writer, string?[] entries, int firstOffset, long sectionOffset)
+    private static long WriteUtf16(ref RevrsWriter writer, string?[] entries, int firstOffset, long sectionOffset)
     {
         long offsetsPosition = writer.Position;
         writer.Move(firstOffset - sizeof(uint));
@@ -40,7 +40,7 @@ internal static class TextSectionWriter
             ? stackalloc long[entries.Length] : new long[entries.Length];
 
         for (int i = 0; i < entries.Length; i++) {
-            WriteUtf16Entry(writer, entries[i]);
+            WriteUtf16Entry(ref writer, entries[i]);
             writer.Write<ushort>(0);
 
             offsets[i] = writer.Position - firstOffset - sectionOffset;
@@ -59,7 +59,7 @@ internal static class TextSectionWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void WriteUtf16Entry(RevrsWriter writer, ReadOnlySpan<char> text)
+    private static void WriteUtf16Entry(ref RevrsWriter writer, ReadOnlySpan<char> text)
     {
         for (int i = 0; i < text.Length; i++) {
             char value = text[i];

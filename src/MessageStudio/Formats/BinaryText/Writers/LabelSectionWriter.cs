@@ -4,7 +4,7 @@ namespace MessageStudio.Formats.BinaryText.Writers;
 
 internal static class LabelSectionWriter
 {
-    public static void Write(RevrsWriter writer, ICollection<string> labels)
+    public static void Write(ref RevrsWriter writer, ICollection<string> labels)
     {
         writer.Write(1);
         writer.Write(labels.Count);

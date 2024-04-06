@@ -24,10 +24,10 @@ public interface ITagResolver
     public (ushort, ushort)? GetGroupAndType(ReadOnlySpan<char> name);
 
     /// <inheritdoc cref="WriteText(StringBuilder, ushort, ushort, Span{byte})"/>
-    public bool WriteBinaryUtf16(RevrsWriter writer, ushort group, ushort type, in TagParams @params);
+    public bool WriteBinaryUtf16(ref RevrsWriter writer, ushort group, ushort type, in TagParams @params);
 
     /// <inheritdoc cref="WriteText(StringBuilder, ushort, ushort, Span{byte})"/>
-    public bool WriteBinaryUtf8(RevrsWriter writer, ushort group, ushort type, in TagParams @params);
+    public bool WriteBinaryUtf8(ref RevrsWriter writer, ushort group, ushort type, in TagParams @params);
 
     /// <summary>
     /// Returns <see langword="true"/> if the tag was recognized

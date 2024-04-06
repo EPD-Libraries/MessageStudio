@@ -36,7 +36,7 @@ public static class TagResolverExtensions
         sb.Append("/>");
     }
 
-    internal static void WriteTag(this RevrsWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
+    internal static void WriteTag(this ref RevrsWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
     {
         ReadOnlySpan<char> name = text.ReadTagName(out int paramsStartIndex);
         TagParams @params = new(text[paramsStartIndex..]);
@@ -48,16 +48,16 @@ public static class TagResolverExtensions
             writer.Write<byte>(0xE);
             writer.Write((byte)group);
             writer.Write((byte)type);
-            if (Resolver.WriteBinaryUtf8(writer, group, type, @params) == false) {
-                DefaultTagResolver.Shared.WriteBinaryUtf8(writer, group, type, @params);
+            if (Resolver.WriteBinaryUtf8(ref writer, group, type, @params) == false) {
+                DefaultTagResolver.Shared.WriteBinaryUtf8(ref writer, group, type, @params);
             }
         }
         else {
             writer.Write<ushort>(0xE);
             writer.Write(group);
             writer.Write(type);
-            if (Resolver.WriteBinaryUtf16(writer, group, type, @params) == false) {
-                DefaultTagResolver.Shared.WriteBinaryUtf16(writer, group, type, @params);
+            if (Resolver.WriteBinaryUtf16(ref writer, group, type, @params) == false) {
+                DefaultTagResolver.Shared.WriteBinaryUtf16(ref writer, group, type, @params);
             }
         }
     }
@@ -69,7 +69,7 @@ public static class TagResolverExtensions
         sb.Append("]>");
     }
 
-    internal static void WriteEndTag(this RevrsWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
+    internal static void WriteEndTag(this ref RevrsWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
     {
         (ushort group, ushort type) = Resolver.GetGroupAndType(text[2..^2])
             ?? DefaultTagResolver.Shared.GetGroupAndType(text[2..^2])!.Value;
