@@ -10,7 +10,8 @@ namespace MessageStudio.Formats.BinaryText;
 
 public class Msbt : Dictionary<string, MsbtEntry>
 {
-    internal const ulong MSBT_MAGIC = 0x6E4264745367734D;
+    public const ulong MAGIC = 0x6E4264745367734D;
+
     internal const uint ATR1_MAGIC = 0x31525441;
     internal const uint LBL1_MAGIC = 0x314C424C;
     internal const uint TXT2_MAGIC = 0x32545854;
@@ -142,7 +143,7 @@ public class Msbt : Dictionary<string, MsbtEntry>
         stream.SetLength(writer.Position);
 
         MsbtHeader header = new(
-            magic: MSBT_MAGIC,
+            magic: MAGIC,
             byteOrderMark: Endianness.Big,
             encoding: encoding.Value,
             version: 3,

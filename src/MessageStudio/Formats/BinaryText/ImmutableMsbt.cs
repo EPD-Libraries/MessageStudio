@@ -46,7 +46,7 @@ public readonly ref struct ImmutableMsbt
             reader.Reverse<MsbtHeader, MsbtHeader.Reverser>(0);
         }
 
-        if (header.Magic != Msbt.MSBT_MAGIC) {
+        if (header.Magic != Msbt.MAGIC) {
             throw new InvalidDataException("Invalid MSBT magic!");
         }
 
