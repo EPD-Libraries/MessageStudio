@@ -19,9 +19,12 @@ BenchmarkRunner.Run([typeof(ImmutableMsbtBenchmarks), typeof(MsbtReadBenchmarks)
 // Console.WriteLine(yaml == yamlMsbt.ToYaml());
 
 using MessageStudio.Formats.BinaryText;
+using MessageStudio.Formats.BinaryText.Components;
 using Revrs;
 using SarcLibrary;
 using System.Diagnostics;
+
+FunctionMap.Current = FunctionMap.FromFile(@"D:\bin\.todo\MessageStudio\Tags\TotK.yaml");
 
 Stopwatch stopwatch = Stopwatch.StartNew();
 
