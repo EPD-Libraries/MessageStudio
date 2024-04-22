@@ -38,12 +38,12 @@ public readonly ref struct MsbtText(Span<byte> buffer, TextEncoding encoding)
                 byte group = Buffer[++i];
                 byte type = Buffer[++i];
                 byte size = Buffer[++i];
-                sb.WriteTag(group, type, Buffer[++i..(i += size)]);
+                sb.AppendFunction(group, type, Buffer[++i..(i += size)], TextEncoding.UTF8);
             }
             else if (value == 0xF) {
                 byte group = Buffer[++i];
                 byte type = Buffer[++i];
-                sb.WriteEndTag(group, type);
+                sb.AppendEmptyFunction(group, type);
             }
             else if (value == 0x0) {
                 continue;
@@ -63,13 +63,13 @@ public readonly ref struct MsbtText(Span<byte> buffer, TextEncoding encoding)
                 ushort group = buffer[++i];
                 ushort type = buffer[++i];
                 ushort size = buffer[++i];
-                sb.WriteTag(group, type, MemoryMarshal.Cast<ushort, byte>(buffer[++i..(i += size / 2)]));
+                sb.AppendFunction(group, type, MemoryMarshal.Cast<ushort, byte>(buffer[++i..(i += size / 2)]), TextEncoding.Unicode);
                 i--;
             }
             else if (value == 0xF) {
                 ushort group = buffer[++i];
                 ushort type = buffer[++i];
-                sb.WriteEndTag(group, type);
+                sb.AppendEmptyFunction(group, type);
             }
             else if (value == 0x0) {
                 continue;

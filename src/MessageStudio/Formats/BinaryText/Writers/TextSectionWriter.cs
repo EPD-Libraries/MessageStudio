@@ -65,13 +65,8 @@ internal static class TextSectionWriter
             char value = text[i];
             int endTagIndex;
             if (value == '<' && (endTagIndex = text[i..].IndexOf('>')) > -1) {
-                ReadOnlySpan<char> tagStr = text[i..((i += endTagIndex) + 1)];
-                if (tagStr.Length > 1 && tagStr[1] == '[') {
-                    writer.WriteEndTag(tagStr, TextEncoding.Unicode);
-                }
-                else {
-                    writer.WriteTag(tagStr, TextEncoding.Unicode);
-                }
+                ReadOnlySpan<char> functionText = text[i..((i += endTagIndex) + 1)];
+                writer.WriteFunction(functionText, TextEncoding.Unicode);
             }
             else {
                 writer.Write(value);
