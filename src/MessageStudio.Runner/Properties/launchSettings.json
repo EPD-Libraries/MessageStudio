@@ -2,7 +2,7 @@
   "profiles": {
     "MessageStudio.Runner": {
       "commandName": "Project",
-      "commandLineArgs": "\"D:\\bin\\Msbt\\test.msbt\""
+      "commandLineArgs": "\"D:\\bin\\.todo\\MessageStudio\\UTF-8\\Shop.msbt\" \"D:\\bin\\.todo\\MessageStudio\\UTF-8\\Shop.yml\" \"D:\\bin\\.todo\\MessageStudio\\UTF-8\\(dst)-Shop.msbt\""
     }
   }
 }

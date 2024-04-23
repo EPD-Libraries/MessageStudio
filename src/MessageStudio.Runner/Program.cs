@@ -7,16 +7,27 @@ BenchmarkRunner.Run([typeof(ImmutableMsbtBenchmarks), typeof(MsbtReadBenchmarks)
 
 #else
 
-// using MessageStudio.Formats.BinaryText;
-// 
-// byte[] buffer = File.ReadAllBytes(args[0]);
-// 
-// Msbt msbt = Msbt.FromBinary(buffer);
-// string yaml = msbt.ToYaml();
-// 
-// Msbt yamlMsbt = Msbt.FromYaml(yaml);
-// Console.WriteLine(yaml + "\n\n");
-// Console.WriteLine(yaml == yamlMsbt.ToYaml());
+using MessageStudio.Common;
+using MessageStudio.Formats.BinaryText;
+
+byte[] buffer = File.ReadAllBytes(args[0]);
+
+Msbt msbt = Msbt.FromBinary(buffer);
+string yaml = msbt.ToYaml();
+
+Msbt yamlMsbt = Msbt.FromYaml(yaml);
+
+File.WriteAllText(args[1], yaml);
+
+byte[] toBinary = yamlMsbt.ToBinary(TextEncoding.UTF8);
+File.WriteAllBytes(args[2], toBinary);
+
+Msbt fromBinary = Msbt.FromBinary(toBinary);
+string toYaml = fromBinary.ToYaml();
+
+Console.WriteLine(yaml == toYaml);
+
+/*
 
 using MessageStudio.Formats.BinaryText;
 using MessageStudio.Formats.BinaryText.Components;
@@ -68,5 +79,7 @@ foreach (var file in Directory.GetFiles("D:\\bin\\Msbt\\Mals")) {
 
 stopwatch.Stop();
 Console.WriteLine($"{stopwatch.ElapsedMilliseconds}ms");
+
+*/
 
 #endif
