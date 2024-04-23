@@ -1,5 +1,6 @@
 ﻿using MessageStudio.Common;
 using MessageStudio.Formats.BinaryText.Extensions;
+using Revrs.Extensions;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -35,14 +36,15 @@ public readonly ref struct MsbtText(Span<byte> buffer, TextEncoding encoding)
         for (int i = 0; i < Buffer.Length; i++) {
             byte value = Buffer[i];
             if (value == 0xE) {
-                byte group = Buffer[++i];
-                byte type = Buffer[++i];
-                byte size = Buffer[++i];
-                sb.AppendFunction(group, type, Buffer[++i..(i += size)], TextEncoding.UTF8);
+                ushort group = Buffer[++i..(i += 2)].Read<ushort>();
+                ushort type = Buffer[i..(i += 2)].Read<ushort>();
+                ushort size = Buffer[i..(i += 2)].Read<ushort>();
+                sb.AppendFunction(group, type, Buffer[i..(i += size)], TextEncoding.UTF8);
+                i--;
             }
             else if (value == 0xF) {
-                byte group = Buffer[++i];
-                byte type = Buffer[++i];
+                ushort group = Buffer[++i..(i += 2)].Read<ushort>();
+                ushort type = Buffer[i..(i += 2)].Read<ushort>();
                 sb.AppendEmptyFunction(group, type);
             }
             else if (value == 0x0) {

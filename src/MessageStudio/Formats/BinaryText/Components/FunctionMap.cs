@@ -137,15 +137,14 @@ public class FunctionMap
         switch (encoding) {
             case TextEncoding.UTF8:
                 writer.Write(leadingByte);
-                writer.Write((byte)group);
-                writer.Write((byte)type);
                 break;
             case TextEncoding.Unicode:
                 writer.Write<ushort>(leadingByte);
-                writer.Write((ushort)group);
-                writer.Write((ushort)type);
                 break;
         }
+
+        writer.Write((ushort)group);
+        writer.Write((ushort)type);
 
         // Empty function type
         if (leadingByte is 0xF) {

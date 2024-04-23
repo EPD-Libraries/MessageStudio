@@ -14,25 +14,7 @@ internal static class TextSectionWriter
         writer.Write(entries.Length);
 
         int firstOffset = entries.Length * sizeof(uint) + sizeof(uint);
-        long sectionEndPosition;
 
-        if (encoding == TextEncoding.UTF8) {
-            sectionEndPosition = WriteUtf8(ref writer, entries, firstOffset, sectionOffset);
-        }
-        else {
-            sectionEndPosition = WriteUtf16(ref writer, entries, firstOffset, sectionOffset);
-        }
-
-        writer.Seek(sectionEndPosition);
-    }
-
-    private static long WriteUtf8(ref RevrsWriter writer, string?[] entries, int firstOffset, long sectionOffset)
-    {
-        throw new NotSupportedException("UTF8 encoded MSBT files are not supported");
-    }
-
-    private static long WriteUtf16(ref RevrsWriter writer, string?[] entries, int firstOffset, long sectionOffset)
-    {
         long offsetsPosition = writer.Position;
         writer.Move(firstOffset - sizeof(uint));
 
@@ -40,9 +22,7 @@ internal static class TextSectionWriter
             ? stackalloc long[entries.Length] : new long[entries.Length];
 
         for (int i = 0; i < entries.Length; i++) {
-            WriteUtf16Entry(ref writer, entries[i]);
-            writer.Write<ushort>(0);
-
+            WriteEntry(ref writer, entries[i], encoding);
             offsets[i] = writer.Position - firstOffset - sectionOffset;
         }
 
@@ -55,22 +35,30 @@ internal static class TextSectionWriter
             writer.Write((uint)(offsets[i] + firstOffset));
         }
 
-        return sectionEndPosition;
+        writer.Seek(sectionEndPosition);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void WriteUtf16Entry(ref RevrsWriter writer, ReadOnlySpan<char> text)
+    private static void WriteEntry(ref RevrsWriter writer, ReadOnlySpan<char> text, TextEncoding encoding)
     {
         for (int i = 0; i < text.Length; i++) {
             char value = text[i];
             int endTagIndex;
             if (value == '<' && (endTagIndex = text[i..].IndexOf('>')) > -1) {
                 ReadOnlySpan<char> functionText = text[i..((i += endTagIndex) + 1)];
-                writer.WriteFunction(functionText, TextEncoding.Unicode);
+                writer.WriteFunction(functionText, encoding);
             }
             else {
                 writer.Write(value);
             }
+        }
+
+        switch (encoding) {
+            case TextEncoding.UTF8:
+                writer.Write<byte>(0);
+                break;
+            case TextEncoding.Unicode:
+                writer.Write<ushort>(0);
+                break;
         }
     }
 }
