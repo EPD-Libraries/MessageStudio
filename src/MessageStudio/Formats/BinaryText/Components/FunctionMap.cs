@@ -197,7 +197,7 @@ public class FunctionMap
                     """);
             }
 
-            return text[1..paramsStartIndex++];
+            return text[2..paramsStartIndex++];
         }
         else {
             leadingByte = 0xE;
